@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.filmpapa" name="FilmPapa HD" version="1.0.0" provider-name="vargalex">
+	<requires>
+		<import addon="script.module.resolveurl" version="5.1.00"/>
+	</requires>
+	<extension point="xbmc.python.pluginsource" library="default.py">
+		<provides>video</provides>
+	</extension>
+	<extension point="xbmc.addon.metadata">
+		<summary lang="en">FilmPapa HD</summary>
+		<description lang="en">Nézd meg a filmeket, sorozatokat a https://plusz.club oldalról!</description>
+		<language>hu</language>
+		<platform>all</platform>
+		<news>- Átállás resolveurl-re
+		</news>
+		<assets>
+		  <icon>icon.png</icon>
+		  <fanart></fanart>
+		  <screenshot>resources/screenshots/screenshot-1.jpg</screenshot>
+		  <screenshot>resources/screenshots/screenshot-2.jpg</screenshot>
+		  <screenshot>resources/screenshots/screenshot-3.jpg</screenshot>
+		</assets>
+	</extension>
+</addon>
