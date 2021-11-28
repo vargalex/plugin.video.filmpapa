@@ -1,2 +1,4 @@
-﻿[B]1.0.0[/B]
+﻿[B]1.0.1[/B]
+- Üres oldal kezelése
+[B]1.0.0[/B]
 - Első verzió

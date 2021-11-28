@@ -78,66 +78,69 @@ class navigator:
         search = "" if search == None else "&s=%s" % search
         page = page or "1"
         url_content = client.request("%s%spage/%s?sort=%s%s" % (base_url, url, page, sort, search))
-        listItems = client.parseDOM(url_content, 'div', attrs={'class': '[^\'"]*list_items.*?'})[int(itemlistNr)]
-        items = client.parseDOM(listItems, 'div', attrs={'class': 'movie-box|episode-box'})
-        for item in items:
-            details = client.parseDOM(item, 'div', attrs={'class': '[^\'"]*existing-details.*?'})[0]
-            name = client.parseDOM(details, 'div', attrs={'class': 'name'})[0]
-            title = client.replaceHTMLCodes(client.parseDOM(name, 'a', ret='title')[0])
+        try:
+            listItems = client.parseDOM(url_content, 'div', attrs={'class': '[^\'"]*list_items.*?'})[int(itemlistNr)]
+            items = client.parseDOM(listItems, 'div', attrs={'class': 'movie-box|episode-box'})
+            for item in items:
+                details = client.parseDOM(item, 'div', attrs={'class': '[^\'"]*existing-details.*?'})[0]
+                name = client.parseDOM(details, 'div', attrs={'class': 'name'})[0]
+                title = client.replaceHTMLCodes(client.parseDOM(name, 'a', ret='title')[0])
+                try:
+                    title = "%s - [COLOR green]%s[/COLOR]" % (client.parseDOM(item, 'span', attrs={'class': 'serietitle'})[0], client.parseDOM(item, 'span', attrs={'class': 'episodetitle'})[0].replace(' <b>', ', ').replace('</b>', ''))
+                except:
+                    pass
+                newurl = client.parseDOM(name, 'a', ret='href')[0]
+                if itemlistNr == '0' and self.infoPreload:
+                    detail_content = client.request(newurl)
+                    movieLeft = client.parseDOM(detail_content, 'div', attrs={'class': 'movie-left'})[0]
+                    movieData = client.parseDOM(detail_content, 'div', attrs={'class': 'movies-data'})[0]
+                    poster = client.parseDOM(movieLeft, 'div', attrs={'class': 'poster'})[0]
+                    img = client.parseDOM(poster, 'div', attrs={'class': 'img'})[0]
+                    thumb = client.parseDOM(img, 'img', ret='src')[0]
+                    release = client.parseDOM(movieData, 'li', attrs={'class': 'release'})[0]
+                    year = client.parseDOM(release, 'a')[0]
+                    try:
+                        time = client.parseDOM(movieData, 'li', attrs={'class': 'time'})[0]
+                        time = client.parseDOM(time, 'span')[0].replace('min', '').strip()
+                    except:
+                        time = 0
+                    plot = client.replaceHTMLCodes(client.parseDOM(movieData, 'div', attrs={'class': 'description'})[0])
+                    try:
+                        imdb = client.parseDOM(movieData, 'div', attrs={'class': 'imdb-count'})[0].split(" ")[0]
+                    except:
+                        imdb = None
+                else:
+                    plot = ""
+                    try:
+                        plot = client.replaceHTMLCodes(client.parseDOM(details, 'p', attrs={'class': 'story'})[0])
+                    except:
+                        pass
+                    poster = client.parseDOM(item, 'div', attrs={'class': 'poster'})[0]
+                    img = client.parseDOM(poster, 'div', attrs={'class': 'img'})[0]
+                    thumb = client.parseDOM(img, 'img', ret='src')[0]
+                    time = 0
+                    year = 0
+                    try:
+                        year = client.parseDOM(details, 'div', attrs={'class': 'category'})[0].strip()
+                    except:
+                        pass
+                    imdb = None
+                    try:
+                        imdbdiv = client.parseDOM(item, 'div', attrs={'class': 'rating'})[0]
+                        imdb = client.parseDOM(imdbdiv, 'span')[0].strip()
+                    except:
+                        pass
+                if newurl.startswith("%sseries" % base_url):
+                    self.addDirectoryItem('%s%s%s' % (title, "" if year == 0 else " ([COLOR red]%s[/COLOR])" % year, "" if imdb == None else " | [COLOR yellow]IMDB: %s[/COLOR]" % imdb), 'series&url=%s' % (quote_plus(newurl)), thumb, 'DefaultMovies.png', isFolder=True, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
+                else:
+                    self.addDirectoryItem('%s%s%s' % (title, "" if year == 0 else " ([COLOR red]%s[/COLOR])" % year, "" if imdb == None else " | [COLOR yellow]IMDB: %s[/COLOR]" % imdb), 'playmovie&url=%s' % (quote_plus(newurl)), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
             try:
-                title = "%s - [COLOR green]%s[/COLOR]" % (client.parseDOM(item, 'span', attrs={'class': 'serietitle'})[0], client.parseDOM(item, 'span', attrs={'class': 'episodetitle'})[0].replace(' <b>', ', ').replace('</b>', ''))
+                navicenter = client.parseDOM(url_content, 'div', attrs={'class': 'navicenter'})[int(itemlistNr)]
+                last = client.parseDOM(navicenter, 'a')[-1]
+                if int(last)>int(page):
+                    self.addDirectoryItem(u'[I]K\u00F6vetkez\u0151 oldal  (%d/%s)>>[/I]' % (int(page)+1, last), 'items&url=%s&page=%d%s%s%s' % (url, int(page)+1, "" if itemlistNr == 0 else "&itemlistnr=%s" % itemlistNr, "" if sort == "" else "&sort=%s" % sort, "" if search == "" else "&search=%s" % search), '', 'DefaultFolder.png')
             except:
                 pass
-            newurl = client.parseDOM(name, 'a', ret='href')[0]
-            if itemlistNr == '0' and self.infoPreload:
-                detail_content = client.request(newurl)
-                movieLeft = client.parseDOM(detail_content, 'div', attrs={'class': 'movie-left'})[0]
-                movieData = client.parseDOM(detail_content, 'div', attrs={'class': 'movies-data'})[0]
-                poster = client.parseDOM(movieLeft, 'div', attrs={'class': 'poster'})[0]
-                img = client.parseDOM(poster, 'div', attrs={'class': 'img'})[0]
-                thumb = client.parseDOM(img, 'img', ret='src')[0]
-                release = client.parseDOM(movieData, 'li', attrs={'class': 'release'})[0]
-                year = client.parseDOM(release, 'a')[0]
-                try:
-                    time = client.parseDOM(movieData, 'li', attrs={'class': 'time'})[0]
-                    time = client.parseDOM(time, 'span')[0].replace('min', '').strip()
-                except:
-                    time = 0
-                plot = client.replaceHTMLCodes(client.parseDOM(movieData, 'div', attrs={'class': 'description'})[0])
-                try:
-                    imdb = client.parseDOM(movieData, 'div', attrs={'class': 'imdb-count'})[0].split(" ")[0]
-                except:
-                    imdb = None
-            else:
-                plot = ""
-                try:
-                    plot = client.replaceHTMLCodes(client.parseDOM(details, 'p', attrs={'class': 'story'})[0])
-                except:
-                    pass
-                poster = client.parseDOM(item, 'div', attrs={'class': 'poster'})[0]
-                img = client.parseDOM(poster, 'div', attrs={'class': 'img'})[0]
-                thumb = client.parseDOM(img, 'img', ret='src')[0]
-                time = 0
-                year = 0
-                try:
-                    year = client.parseDOM(details, 'div', attrs={'class': 'category'})[0].strip()
-                except:
-                    pass
-                imdb = None
-                try:
-                    imdbdiv = client.parseDOM(item, 'div', attrs={'class': 'rating'})[0]
-                    imdb = client.parseDOM(imdbdiv, 'span')[0].strip()
-                except:
-                    pass
-            if newurl.startswith("%sseries" % base_url):
-                self.addDirectoryItem('%s%s%s' % (title, "" if year == 0 else " ([COLOR red]%s[/COLOR])" % year, "" if imdb == None else " | [COLOR yellow]IMDB: %s[/COLOR]" % imdb), 'series&url=%s' % (quote_plus(newurl)), thumb, 'DefaultMovies.png', isFolder=True, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
-            else:
-                self.addDirectoryItem('%s%s%s' % (title, "" if year == 0 else " ([COLOR red]%s[/COLOR])" % year, "" if imdb == None else " | [COLOR yellow]IMDB: %s[/COLOR]" % imdb), 'playmovie&url=%s' % (quote_plus(newurl)), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
-        try:
-            navicenter = client.parseDOM(url_content, 'div', attrs={'class': 'navicenter'})[int(itemlistNr)]
-            last = client.parseDOM(navicenter, 'a')[-1]
-            if int(last)>int(page):
-                self.addDirectoryItem(u'[I]K\u00F6vetkez\u0151 oldal  (%d/%s)>>[/I]' % (int(page)+1, last), 'items&url=%s&page=%d%s%s%s' % (url, int(page)+1, "" if itemlistNr == 0 else "&itemlistnr=%s" % itemlistNr, "" if sort == "" else "&sort=%s" % sort, "" if search == "" else "&search=%s" % search), '', 'DefaultFolder.png')
         except:
             pass
         self.endDirectory('movies')
