@@ -44,6 +44,8 @@ sort = params.get('sort')
 
 serieid = params.get('serieid')
 
+subtitled = params.get('subtitled')
+
 if action == None:
     navigator.navigator().getRoot()
 
@@ -63,7 +65,7 @@ elif action == 'episodes':
     navigator.navigator().getEpisodes(url, serieid)
 
 elif action == 'playmovie':
-    navigator.navigator().playMovie(url)
+    navigator.navigator().playMovie(url, subtitled)
 
 elif action == 'search':
     navigator.navigator().getSearches()

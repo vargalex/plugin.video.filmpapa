@@ -25,7 +25,7 @@ from resources.lib.modules.utils import py2_encode, py2_decode
 if sys.version_info[0] == 3:
     import urllib.parse as urlparse
     from urllib.parse import quote_plus
-else:
+else:   
     import urlparse
     from urllib import quote_plus
 
@@ -42,6 +42,7 @@ class navigator:
         except:
             pass
         self.infoPreload = xbmcaddon.Addon().getSettingBool('infopreload')
+        self.downloadsubtitles = xbmcaddon.Addon().getSettingBool('downloadsubtitles')
         self.base_path = py2_decode(xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('profile')))
         self.searchFileName = os.path.join(self.base_path, "search.history")
 
@@ -133,7 +134,7 @@ class navigator:
                 if newurl.startswith("%sseries" % base_url):
                     self.addDirectoryItem('%s%s%s' % (title, "" if year == 0 else " ([COLOR red]%s[/COLOR])" % year, "" if imdb == None else " | [COLOR yellow]IMDB: %s[/COLOR]" % imdb), 'series&url=%s' % (quote_plus(newurl)), thumb, 'DefaultMovies.png', isFolder=True, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
                 else:
-                    self.addDirectoryItem('%s%s%s' % (title, "" if year == 0 else " ([COLOR red]%s[/COLOR])" % year, "" if imdb == None else " | [COLOR yellow]IMDB: %s[/COLOR]" % imdb), 'playmovie&url=%s' % (quote_plus(newurl)), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
+                    self.addDirectoryItem('%s%s%s' % (title, "" if year == 0 else " ([COLOR red]%s[/COLOR])" % year, "" if imdb == None else " | [COLOR yellow]IMDB: %s[/COLOR]" % imdb), 'playmovie&url=%s' % quote_plus(newurl), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
             try:
                 navicenter = client.parseDOM(url_content, 'div', attrs={'class': 'navicenter'})[int(itemlistNr)]
                 last = client.parseDOM(navicenter, 'a')[-1]
@@ -192,8 +193,12 @@ class navigator:
         except:
             time = 0
         plot = client.replaceHTMLCodes(client.parseDOM(movieData, 'div', attrs={'class': 'description'})[0])
+        subtitled = 0
         try:
-            imdb = client.parseDOM(movieData, 'div', attrs={'class': 'imdb-count'})[0].split(" ")[0]
+            fullimdb = client.parseDOM(movieData, 'div', attrs={'class': 'imdb-count'})[0]
+            imdb= fullimdb.split(" ")[0]
+            if "Feliratos" in fullimdb:
+                subtitled = 1
         except:
             imdb = None
         items = client.parseDOM(season, 'div', attrs={'class': 'movie-box|episode-box'})
@@ -206,7 +211,7 @@ class navigator:
             except:
                 pass
             newurl = client.parseDOM(name, 'a', ret='href')[0]
-            self.addDirectoryItem('%s%s%s' % (title, "" if year == 0 else " ([COLOR red]%s[/COLOR])" % year, "" if imdb == None else " | [COLOR yellow]IMDB: %s[/COLOR]" % imdb), 'playmovie&url=%s' % (quote_plus(newurl)), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
+            self.addDirectoryItem('%s%s%s' % (title, "" if year == 0 else " ([COLOR red]%s[/COLOR])" % year, "" if imdb == None else " | [COLOR yellow]IMDB: %s[/COLOR]" % imdb), 'playmovie&url=%s&subtitled=%d' % (quote_plus(newurl), subtitled), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
         self.endDirectory('episodes')
 
 
@@ -244,7 +249,8 @@ class navigator:
             file.close()
             self.getItems(None, 1, None, None, search_text)
 
-    def playMovie(self, url):
+
+    def playMovie(self, url, subtitled):
         url_content = client.request(url)
         try:
             src = client.parseDOM(url_content, 'iframe', ret='src')[0]
@@ -263,8 +269,36 @@ class navigator:
             xbmcgui.Dialog().notification(urlparse.urlparse(url).hostname, str(e))
             return
         if direct_url:
-            xbmc.log('FilmPapa: playing URL: %s' % direct_url, xbmc.LOGINFO)
+            xbmc.log('FilmPapa: playing URL: %s, subtitled: %s' % (direct_url, subtitled), xbmc.LOGINFO)
             play_item = xbmcgui.ListItem(path=direct_url)
+            if subtitled == '1' and self.downloadsubtitles:
+                errMsg = ""
+                try:
+                    if not os.path.exists("%s/subtitles" % self.base_path):
+                        errMsg = "Hiba a felirat könyvtár létrehozásakor!"
+                        os.mkdir("%s/subtitles" % self.base_path)
+                    for f in os.listdir("%s/subtitles" % self.base_path):
+                        errMsg = "Hiba a korábbi feliratok törlésekor!"
+                        os.remove("%s/subtitles/%s" % (self.base_path, f))
+                    finalsubtitles=[]
+                    if "mxdcontent" in direct_url:
+                        errMsg = "Hiba a sorozat felirat letöltésekor!"
+                        parsed_uri = urlparse.urlparse(direct_url)
+                        parsed_uri2 = urlparse.urlparse(src)
+                        subtitle = client.request("%s://%s/subs/%s_en.vtt" % (parsed_uri.scheme, parsed_uri.netloc, src.split("/")[-1]))
+                        if len(stitle) > 0:
+                            errMsg = "Hiba a sorozat felirat file kiírásakor!"
+                            file = open("%s/subtitles/hu.srt" % self.base_path, "w")
+                            file.write(subtitle)
+                            file.close()
+                            errMsg = "Hiba a sorozat felirat file hozzáadásakor!"
+                            finalsubtitles.append("%s/subtitles/hu.srt" % self.base_path)
+                    if len(finalsubtitles)>0:
+                        errMsg = "Hiba a feliratok beállításakor!"
+                        play_item.setSubtitles(finalsubtitles)
+                except:
+                    xbmcgui.Dialog().notification("FilmPapa hiba", errMsg, xbmcgui.NOTIFICATION_ERROR)
+                    xbmc.log("Hiba a %s URL-hez tartozó felirat letöltésekor, hiba: %s" % (src, errMsg), xbmc.LOGERROR)
             xbmcplugin.setResolvedUrl(syshandle, True, listitem=play_item)
 
     def addDirectoryItem(self, name, query, thumb, icon, context=None, queue=False, isAction=True, isFolder=True, Fanart=None, meta=None, banner=None):
