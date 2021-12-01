@@ -1,4 +1,6 @@
-﻿[B]1.0.2[/B]
+﻿[B]1.0.2b[/B]
+- vtt felirat kezelésének hozzáadása film esetén
+[B]1.0.2[/B]
 - Sorozat felirat kezelése
 [B]1.0.1[/B]
 - Üres oldal kezelése

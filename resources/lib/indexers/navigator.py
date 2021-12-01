@@ -17,7 +17,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
-import os,sys,re,xbmc,xbmcgui,xbmcplugin,xbmcaddon, time, locale
+import os,sys,re,xbmc,xbmcgui,xbmcplugin,xbmcaddon, time, locale, json
 import resolveurl as urlresolver
 from resources.lib.modules import client
 from resources.lib.modules.utils import py2_encode, py2_decode
@@ -25,7 +25,8 @@ from resources.lib.modules.utils import py2_encode, py2_decode
 if sys.version_info[0] == 3:
     import urllib.parse as urlparse
     from urllib.parse import quote_plus
-else:   
+    from resources.lib.modules import vtt_to_srt_py3 as vtt_to_srt
+else:
     import urlparse
     from urllib import quote_plus
 
@@ -134,7 +135,7 @@ class navigator:
                 if newurl.startswith("%sseries" % base_url):
                     self.addDirectoryItem('%s%s%s' % (title, "" if year == 0 else " ([COLOR red]%s[/COLOR])" % year, "" if imdb == None else " | [COLOR yellow]IMDB: %s[/COLOR]" % imdb), 'series&url=%s' % (quote_plus(newurl)), thumb, 'DefaultMovies.png', isFolder=True, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
                 else:
-                    self.addDirectoryItem('%s%s%s' % (title, "" if year == 0 else " ([COLOR red]%s[/COLOR])" % year, "" if imdb == None else " | [COLOR yellow]IMDB: %s[/COLOR]" % imdb), 'playmovie&url=%s' % quote_plus(newurl), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
+                    self.addDirectoryItem('%s%s%s' % (title, "" if year == 0 else " ([COLOR red]%s[/COLOR])" % year, "" if imdb == None else " | [COLOR yellow]IMDB: %s[/COLOR]" % imdb), 'playmovie&url=%s&title=%s' % (quote_plus(newurl), quote_plus(title)), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
             try:
                 navicenter = client.parseDOM(url_content, 'div', attrs={'class': 'navicenter'})[int(itemlistNr)]
                 last = client.parseDOM(navicenter, 'a')[-1]
@@ -211,7 +212,7 @@ class navigator:
             except:
                 pass
             newurl = client.parseDOM(name, 'a', ret='href')[0]
-            self.addDirectoryItem('%s%s%s' % (title, "" if year == 0 else " ([COLOR red]%s[/COLOR])" % year, "" if imdb == None else " | [COLOR yellow]IMDB: %s[/COLOR]" % imdb), 'playmovie&url=%s&subtitled=%d' % (quote_plus(newurl), subtitled), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
+            self.addDirectoryItem('%s%s%s' % (title, "" if year == 0 else " ([COLOR red]%s[/COLOR])" % year, "" if imdb == None else " | [COLOR yellow]IMDB: %s[/COLOR]" % imdb), 'playmovie&url=%s&title=%s&subtitled=%d' % (quote_plus(newurl), quote_plus(title), subtitled), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
         self.endDirectory('episodes')
 
 
@@ -250,10 +251,12 @@ class navigator:
             self.getItems(None, 1, None, None, search_text)
 
 
-    def playMovie(self, url, subtitled):
+    def playMovie(self, url, title, subtitled):
         url_content = client.request(url)
+        isIFrame = False
         try:
             src = client.parseDOM(url_content, 'iframe', ret='src')[0]
+            isIFrame = True
         except:
             src = client.parseDOM(url_content, 'source', ret='src')[0]
         if "http" not in src:
@@ -285,14 +288,41 @@ class navigator:
                         errMsg = "Hiba a sorozat felirat letöltésekor!"
                         parsed_uri = urlparse.urlparse(direct_url)
                         parsed_uri2 = urlparse.urlparse(src)
-                        subtitle = client.request("%s://%s/subs/%s_en.vtt" % (parsed_uri.scheme, parsed_uri.netloc, src.split("/")[-1]))
+                        stitle = client.request("%s://%s/subs/%s_en.vtt" % (parsed_uri.scheme, parsed_uri.netloc, src.split("/")[-1]))
                         if len(stitle) > 0:
+                            #finalSubtitle = vtt_to_srt.convert_content(stitle)
                             errMsg = "Hiba a sorozat felirat file kiírásakor!"
                             file = open("%s/subtitles/hu.srt" % self.base_path, "w")
-                            file.write(subtitle)
+                            #file.write(finalSubtitle)
+                            file.write(stitle)
                             file.close()
                             errMsg = "Hiba a sorozat felirat file hozzáadásakor!"
                             finalsubtitles.append("%s/subtitles/hu.srt" % self.base_path)
+                    else:
+                        errMsg = "Hiba a film iframe letöltésekor!"
+                        url_content = ""
+                        if isIFrame:
+                            url_content = client.request(src)
+                        if "\&quot;subtitleTracks\&quot;:[" in url_content:
+                            errMsg = "Hiba a film feliratok parse-olásakor!"
+                            tmp = url_content.split("\&quot;subtitleTracks\&quot;:[")
+                            tmp = tmp[1].split("]")
+                            subtitlestxt = '[%s]' % tmp[0].replace("\\&quot;", '"').replace('\\\\u0026', '&')
+                            subtitles = json.loads(subtitlestxt)
+                            
+                            for subtitle in subtitles:
+                                errMsg = "Hiba a film felirat letöltésekor!"
+                                stitle = client.request('%s%s' % ("" if subtitle['url'].startswith('http') else "https:", subtitle['url']))
+                                finalSubtitle = stitle
+                                if finalSubtitle.startswith("WEBVTT"):
+                                    errMsg = "Hiba a film WEBVTT felirat srt-re alakításakor!"
+                                    finalSubtitle = vtt_to_srt.convert_content(stitle)
+                                errMsg = "Hiba a film felirat file kiírásakor!"
+                                file = open("%s/subtitles/%s.%s.srt" % (self.base_path, subtitle['index'], subtitle['language']), "w")
+                                file.write(finalSubtitle)
+                                file.close()
+                                errMsg = "Hiba a film felirat file hozzáadásakor!"
+                                finalsubtitles.append("%s/subtitles/%s.%s.srt" % (self.base_path, subtitle['index'], subtitle['language']))
                     if len(finalsubtitles)>0:
                         errMsg = "Hiba a feliratok beállításakor!"
                         play_item.setSubtitles(finalsubtitles)
