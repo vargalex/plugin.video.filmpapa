@@ -286,7 +286,7 @@ class navigator:
                         parsed_uri = urlparse.urlparse(direct_url)
                         parsed_uri2 = urlparse.urlparse(src)
                         subtitle = client.request("%s://%s/subs/%s_en.vtt" % (parsed_uri.scheme, parsed_uri.netloc, src.split("/")[-1]))
-                        if len(stitle) > 0:
+                        if len(subtitle) > 0:
                             errMsg = "Hiba a sorozat felirat file kiírásakor!"
                             file = open("%s/subtitles/hu.srt" % self.base_path, "w")
                             file.write(subtitle)
@@ -298,7 +298,7 @@ class navigator:
                         play_item.setSubtitles(finalsubtitles)
                 except:
                     xbmcgui.Dialog().notification("FilmPapa hiba", errMsg, xbmcgui.NOTIFICATION_ERROR)
-                    xbmc.log("Hiba a %s URL-hez tartozó felirat letöltésekor, hiba: %s" % (src, errMsg), xbmc.LOGERROR)
+                    xbmc.log("Hiba a %s URL-hez tartozó felirat letöltésekor, hiba: %s" % (py2_encode(src), py2_encode(errMsg)), xbmc.LOGERROR)
             xbmcplugin.setResolvedUrl(syshandle, True, listitem=play_item)
 
     def addDirectoryItem(self, name, query, thumb, icon, context=None, queue=False, isAction=True, isFolder=True, Fanart=None, meta=None, banner=None):
