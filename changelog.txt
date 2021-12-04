@@ -1,4 +1,6 @@
-﻿[B]1.0.2[/B]
+﻿[B]1.0.3[/B]
+- Felirat kiírása utf-8-ként, feiratos megjelenítés módosítása
+[B]1.0.2[/B]
 - Sorozat felirat kezelése
 [B]1.0.1[/B]
 - Üres oldal kezelése

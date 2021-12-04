@@ -20,7 +20,7 @@
 import os,sys,re,xbmc,xbmcgui,xbmcplugin,xbmcaddon, time, locale
 import resolveurl as urlresolver
 from resources.lib.modules import client
-from resources.lib.modules.utils import py2_encode, py2_decode
+from resources.lib.modules.utils import py2_encode, py2_decode, safeopen
 
 if sys.version_info[0] == 3:
     import urllib.parse as urlparse
@@ -91,6 +91,7 @@ class navigator:
                 except:
                     pass
                 newurl = client.parseDOM(name, 'a', ret='href')[0]
+                felirat = 0
                 if itemlistNr == '0' and self.infoPreload:
                     detail_content = client.request(newurl)
                     movieLeft = client.parseDOM(detail_content, 'div', attrs={'class': 'movie-left'})[0]
@@ -107,7 +108,10 @@ class navigator:
                         time = 0
                     plot = client.replaceHTMLCodes(client.parseDOM(movieData, 'div', attrs={'class': 'description'})[0])
                     try:
-                        imdb = client.parseDOM(movieData, 'div', attrs={'class': 'imdb-count'})[0].split(" ")[0]
+                        fullimdb = client.parseDOM(movieData, 'div', attrs={'class': 'imdb-count'})[0]
+                        imdb = fullimdb.split(" ")[0]
+                        if "felirat" in fullimdb.lower():
+                            felirat = 1
                     except:
                         imdb = None
                 else:
@@ -128,13 +132,16 @@ class navigator:
                     imdb = None
                     try:
                         imdbdiv = client.parseDOM(item, 'div', attrs={'class': 'rating'})[0]
-                        imdb = client.parseDOM(imdbdiv, 'span')[0].strip()
+                        fullimdb = client.parseDOM(imdbdiv, 'span')[0]
+                        imdb = fullimdb.split(" ")[0].strip()
+                        if "felirat" in fullimdb.lower():
+                            felirat = 1
                     except:
                         pass
                 if newurl.startswith("%sseries" % base_url):
-                    self.addDirectoryItem('%s%s%s' % (title, "" if year == 0 else " ([COLOR red]%s[/COLOR])" % year, "" if imdb == None else " | [COLOR yellow]IMDB: %s[/COLOR]" % imdb), 'series&url=%s' % (quote_plus(newurl)), thumb, 'DefaultMovies.png', isFolder=True, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
+                    self.addDirectoryItem('%s%s%s%s' % (title, "" if year == 0 else " ([COLOR red]%s[/COLOR])" % year, "" if imdb == None else " | [COLOR yellow]IMDB: %s[/COLOR]" % imdb, "" if felirat == 0 else " | [COLOR lime]Feliratos[/COLOR]"), 'series&url=%s' % (quote_plus(newurl)), thumb, 'DefaultMovies.png', isFolder=True, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
                 else:
-                    self.addDirectoryItem('%s%s%s' % (title, "" if year == 0 else " ([COLOR red]%s[/COLOR])" % year, "" if imdb == None else " | [COLOR yellow]IMDB: %s[/COLOR]" % imdb), 'playmovie&url=%s' % quote_plus(newurl), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
+                    self.addDirectoryItem('%s%s%s%s' % (title, "" if year == 0 else " ([COLOR red]%s[/COLOR])" % year, "" if imdb == None else " | [COLOR yellow]IMDB: %s[/COLOR]" % imdb, "" if felirat == 0 else " | [COLOR lime]Feliratos[/COLOR]"), 'playmovie&url=%s' % quote_plus(newurl), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
             try:
                 navicenter = client.parseDOM(url_content, 'div', attrs={'class': 'navicenter'})[int(itemlistNr)]
                 last = client.parseDOM(navicenter, 'a')[-1]
@@ -218,13 +225,13 @@ class navigator:
     def getSearches(self):
         self.addDirectoryItem('Új keresés', 'newsearch', '', 'DefaultFolder.png')
         try:
-            file = open(self.searchFileName, "r")
+            file = safeopen(self.searchFileName, "r")
             olditems = file.read().splitlines()
             file.close()
             items = list(set(olditems))
             items.sort(key=locale.strxfrm)
             if len(items) != len(olditems):
-                file = open(self.searchFileName, "w")
+                file = safeopen(self.searchFileName, "w")
                 file.write("\n".join(items))
                 file.close()
             for item in items:
@@ -244,7 +251,7 @@ class navigator:
         if search_text != '':
             if not os.path.exists(self.base_path):
                 os.mkdir(self.base_path)
-            file = open(self.searchFileName, "a")
+            file = safeopen(self.searchFileName, "a")
             file.write("%s\n" % search_text)
             file.close()
             self.getItems(None, 1, None, None, search_text)
@@ -288,7 +295,7 @@ class navigator:
                         subtitle = client.request("%s://%s/subs/%s_en.vtt" % (parsed_uri.scheme, parsed_uri.netloc, src.split("/")[-1]))
                         if len(subtitle) > 0:
                             errMsg = "Hiba a sorozat felirat file kiírásakor!"
-                            file = open("%s/subtitles/hu.srt" % self.base_path, "w")
+                            file = safeopen("%s/subtitles/hu.srt" % self.base_path, "w")
                             file.write(subtitle)
                             file.close()
                             errMsg = "Hiba a sorozat felirat file hozzáadásakor!"

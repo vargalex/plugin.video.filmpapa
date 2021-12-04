@@ -19,3 +19,9 @@ def py2_decode(s, encoding='utf-8', errors='strict'):
     if sys.version_info[0] == 2 and isinstance(s, str):
         s = s.decode(encoding, errors)
     return s
+
+def safeopen(filepath, mode):
+    if sys.version_info[0] == 3:
+        return open(filepath, mode, encoding="utf-8")
+    else:
+        return open(filepath, mode)
