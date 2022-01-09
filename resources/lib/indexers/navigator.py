@@ -76,9 +76,9 @@ class navigator:
         url = url or ""
         itemlistNr = itemlistNr or '0'
         sort = sort or ""
-        search = "" if search == None else "&s=%s" % search
+        searchparam = "" if search == None else "&s=%s" % search
         page = page or "1"
-        url_content = client.request("%s%spage/%s?sort=%s%s" % (base_url, url, page, sort, search))
+        url_content = client.request("%s%spage/%s?sort=%s%s" % (base_url, url, page, sort, searchparam))
         try:
             listItems = client.parseDOM(url_content, 'div', attrs={'class': '[^\'"]*list_items.*?'})[int(itemlistNr)]
             items = client.parseDOM(listItems, 'div', attrs={'class': 'movie-box|episode-box'})
