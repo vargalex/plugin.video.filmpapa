@@ -146,7 +146,7 @@ class navigator:
                 navicenter = client.parseDOM(url_content, 'div', attrs={'class': 'navicenter'})[int(itemlistNr)]
                 last = client.parseDOM(navicenter, 'a')[-1]
                 if int(last)>int(page):
-                    self.addDirectoryItem(u'[I]K\u00F6vetkez\u0151 oldal  (%d/%s)>>[/I]' % (int(page)+1, last), 'items&url=%s&page=%d%s%s%s' % (url, int(page)+1, "" if itemlistNr == 0 else "&itemlistnr=%s" % itemlistNr, "" if sort == "" else "&sort=%s" % sort, "" if search == "" else "&search=%s" % search), '', 'DefaultFolder.png')
+                    self.addDirectoryItem(u'[I]K\u00F6vetkez\u0151 oldal  (%d/%s)>>[/I]' % (int(page)+1, last), 'items&url=%s&page=%d%s%s%s' % (url, int(page)+1, "" if itemlistNr == 0 else "&itemlistnr=%s" % itemlistNr, "" if sort == "" else "&sort=%s" % sort, "" if search == "" or search == None else "&search=%s" % search), '', 'DefaultFolder.png')
             except:
                 pass
         except:

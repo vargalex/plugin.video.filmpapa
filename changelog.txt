@@ -1,4 +1,6 @@
-﻿[B]1.0.4[/B]
+﻿[B]1.0.5[/B]
+- BugFix
+[B]1.0.4[/B]
 - Keresés lapozásának (Következő oldal) javítása
 [B]1.0.3[/B]
 - Felirat kiírása utf-8-ként, feiratos megjelenítés módosítása
