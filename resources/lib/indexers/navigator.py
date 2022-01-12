@@ -50,7 +50,7 @@ class navigator:
         self.addDirectoryItem('Keresés', 'search', '', 'DefaultFolder.png')
         self.addDirectoryItem('Legújabb HD filmek', 'items&page=1', '', 'DefaultFolder.png')
         self.addDirectoryItem('Műfajok', 'categories', '', 'DefaultFolder.png')
-        self.addDirectoryItem('Sorozatok', 'sorts&url=series-category/sorozat-online/', '', 'DefaultFolder.png')
+        self.addDirectoryItem('Sorozatok', 'sorts&url=series-archive/', '', 'DefaultFolder.png')
         self.addDirectoryItem('Legújabb sorozat epizódok', 'items&itemlistnr=1', '', 'DefaultFolder.png')
         self.endDirectory()
 
@@ -78,7 +78,7 @@ class navigator:
         sort = sort or ""
         searchparam = "" if search == None else "&s=%s" % search
         page = page or "1"
-        url_content = client.request("%s%spage/%s?sort=%s%s" % (base_url, url, page, sort, searchparam))
+        url_content = client.request("%s%spage/%s/?sort=%s%s" % (base_url, url, page, sort, searchparam))
         try:
             listItems = client.parseDOM(url_content, 'div', attrs={'class': '[^\'"]*list_items.*?'})[int(itemlistNr)]
             items = client.parseDOM(listItems, 'div', attrs={'class': 'movie-box|episode-box'})
