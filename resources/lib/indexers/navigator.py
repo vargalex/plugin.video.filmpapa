@@ -99,8 +99,11 @@ class navigator:
                     poster = client.parseDOM(movieLeft, 'div', attrs={'class': 'poster'})[0]
                     img = client.parseDOM(poster, 'div', attrs={'class': 'img'})[0]
                     thumb = client.parseDOM(img, 'img', ret='src')[0]
-                    release = client.parseDOM(movieData, 'li', attrs={'class': 'release'})[0]
-                    year = client.parseDOM(release, 'a')[0]
+                    try:
+                        release = client.parseDOM(movieData, 'li', attrs={'class': 'release'})[0]
+                        year = client.parseDOM(release, 'a')[0]
+                    except:
+                        year = "ismeretlen"
                     try:
                         time = client.parseDOM(movieData, 'li', attrs={'class': 'time'})[0]
                         time = client.parseDOM(time, 'span')[0].replace('min', '').strip()

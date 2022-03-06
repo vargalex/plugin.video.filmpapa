@@ -1,4 +1,6 @@
-﻿[B]1.0.6[/B]
+﻿[B]1.0.7[/B]
+- Hiányzó release év kezelése
+[B]1.0.6[/B]
 - Sorozat bugfix
 [B]1.0.5[/B]
 - BugFix
