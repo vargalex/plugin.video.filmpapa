@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import os,xbmc,xbmcaddon,xbmcplugin,xbmcgui,xbmcvfs
+import os,xbmc,xbmcaddon,xbmcplugin,xbmcgui,xbmcvfs,sys
+
+if sys.version_info[0] == 3:
+    from xbmcvfs import translatePath
+else:
+    from xbmc import translatePath
+
 
 
 integer = 1000
@@ -65,16 +71,16 @@ deleteFile = xbmcvfs.delete
 
 listDir = xbmcvfs.listdir
 
-transPath = xbmc.translatePath
+transPath = translatePath
 
-skinPath = xbmc.translatePath('special://skin/')
+skinPath = translatePath('special://skin/')
 
-addonPath = xbmc.translatePath(addonInfo('path'))
+addonPath = translatePath(addonInfo('path'))
 
 try:
-    dataPath = xbmc.translatePath(addonInfo('profile')).decode('utf-8')
+    dataPath = translatePath(addonInfo('profile')).decode('utf-8')
 except:
-    dataPath = xbmc.translatePath(addonInfo('profile'))
+    dataPath = translatePath(addonInfo('profile'))
 
 playlistFile = os.path.join(dataPath, 'playlist.db')
 

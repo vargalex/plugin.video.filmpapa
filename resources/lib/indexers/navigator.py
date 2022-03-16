@@ -19,7 +19,7 @@
 '''
 import os,sys,re,xbmc,xbmcgui,xbmcplugin,xbmcaddon, time, locale
 import resolveurl as urlresolver
-from resources.lib.modules import client
+from resources.lib.modules import client, control
 from resources.lib.modules.utils import py2_encode, py2_decode, safeopen
 
 if sys.version_info[0] == 3:
@@ -43,7 +43,7 @@ class navigator:
             pass
         self.infoPreload = xbmcaddon.Addon().getSettingBool('infopreload')
         self.downloadsubtitles = xbmcaddon.Addon().getSettingBool('downloadsubtitles')
-        self.base_path = py2_decode(xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('profile')))
+        self.base_path = py2_decode(control.dataPath)
         self.searchFileName = os.path.join(self.base_path, "search.history")
 
     def getRoot(self):
@@ -76,7 +76,7 @@ class navigator:
         url = url or ""
         itemlistNr = itemlistNr or '0'
         sort = sort or ""
-        searchparam = "" if search == None else "&s=%s" % search
+        searchparam = "" if search == None else "&s=%s" % quote_plus(search)
         page = page or "1"
         url_content = client.request("%s%spage/%s/?sort=%s%s" % (base_url, url, page, sort, searchparam))
         try:
@@ -281,7 +281,7 @@ class navigator:
         if direct_url:
             xbmc.log('FilmPapa: playing URL: %s, subtitled: %s' % (direct_url, subtitled), xbmc.LOGINFO)
             play_item = xbmcgui.ListItem(path=direct_url)
-            if subtitled == '1' and self.downloadsubtitles:
+            if "mxdcontent" in direct_url and self.downloadsubtitles:
                 errMsg = ""
                 try:
                     if not os.path.exists("%s/subtitles" % self.base_path):

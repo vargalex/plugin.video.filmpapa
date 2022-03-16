@@ -1,4 +1,8 @@
-﻿[B]1.0.7[/B]
+﻿[B]1.0.8[/B]
+- Ékezetes keresés javítása
+- Felirat letöltésének kísérlete akkor is, ha nincs jelölve, hogy feliratos, de mxdconent található az url-ben
+- Nexus kompatibilitás
+[B]1.0.7[/B]
 - Hiányzó release év kezelése
 [B]1.0.6[/B]
 - Sorozat bugfix
