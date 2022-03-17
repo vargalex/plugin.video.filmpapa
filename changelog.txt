@@ -1,4 +1,6 @@
-﻿[B]1.0.8[/B]
+﻿[B]1.0.9[/B]
+- Forrás változás követése felirat kinyerésekor
+[B]1.0.8[/B]
 - Ékezetes keresés javítása
 - Felirat letöltésének kísérlete akkor is, ha nincs jelölve, hogy feliratos, de mxdconent található az url-ben
 - Nexus kompatibilitás

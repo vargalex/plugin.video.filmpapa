@@ -281,7 +281,7 @@ class navigator:
         if direct_url:
             xbmc.log('FilmPapa: playing URL: %s, subtitled: %s' % (direct_url, subtitled), xbmc.LOGINFO)
             play_item = xbmcgui.ListItem(path=direct_url)
-            if "mxdcontent" in direct_url and self.downloadsubtitles:
+            if ("mxdcontent" in direct_url or "mxcontent" in direct_url) and self.downloadsubtitles:
                 errMsg = ""
                 try:
                     if not os.path.exists("%s/subtitles" % self.base_path):
@@ -291,7 +291,7 @@ class navigator:
                         errMsg = "Hiba a korábbi feliratok törlésekor!"
                         os.remove("%s/subtitles/%s" % (self.base_path, f))
                     finalsubtitles=[]
-                    if "mxdcontent" in direct_url:
+                    if ("mxdcontent" in direct_url or "mxcontent" in direct_url):
                         errMsg = "Hiba a sorozat felirat letöltésekor!"
                         parsed_uri = urlparse.urlparse(direct_url)
                         parsed_uri2 = urlparse.urlparse(src)
