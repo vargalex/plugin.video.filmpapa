@@ -1,4 +1,6 @@
-﻿[B]1.0.9[/B]
+﻿[B]1.0.10[/B]
+- Film leírás nincs mindig töltve
+[B]1.0.9[/B]
 - Forrás változás követése felirat kinyerésekor
 [B]1.0.8[/B]
 - Ékezetes keresés javítása

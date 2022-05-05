@@ -109,7 +109,11 @@ class navigator:
                         time = client.parseDOM(time, 'span')[0].replace('min', '').strip()
                     except:
                         time = 0
-                    plot = client.replaceHTMLCodes(client.parseDOM(movieData, 'div', attrs={'class': 'description'})[0])
+                    plot = ""
+                    try:
+                        plot = client.replaceHTMLCodes(client.parseDOM(movieData, 'div', attrs={'class': 'description'})[0])
+                    except:
+                        pass
                     try:
                         fullimdb = client.parseDOM(movieData, 'div', attrs={'class': 'imdb-count'})[0]
                         imdb = fullimdb.split(" ")[0]
