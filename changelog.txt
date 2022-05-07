@@ -1,4 +1,7 @@
-﻿[B]1.0.10[/B]
+﻿[B]1.0.11[/B]
+- feltotesek.xyz források támogatása
+- feliratok kezelésének módosítása (csak az így jelölt filmek esetén próbál feliratot letölteni)
+[B]1.0.10[/B]
 - Film leírás nincs mindig töltve
 [B]1.0.9[/B]
 - Forrás változás követése felirat kinyerésekor

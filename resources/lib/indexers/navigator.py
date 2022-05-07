@@ -17,7 +17,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
-import os,sys,re,xbmc,xbmcgui,xbmcplugin,xbmcaddon, time, locale
+import os,sys,re,xbmc,xbmcgui,xbmcplugin,xbmcaddon, time, locale, json
 import resolveurl as urlresolver
 from resources.lib.modules import client, control
 from resources.lib.modules.utils import py2_encode, py2_decode, safeopen
@@ -109,11 +109,10 @@ class navigator:
                         time = client.parseDOM(time, 'span')[0].replace('min', '').strip()
                     except:
                         time = 0
-                    plot = ""
                     try:
                         plot = client.replaceHTMLCodes(client.parseDOM(movieData, 'div', attrs={'class': 'description'})[0])
                     except:
-                        pass
+                        plot = ""
                     try:
                         fullimdb = client.parseDOM(movieData, 'div', attrs={'class': 'imdb-count'})[0]
                         imdb = fullimdb.split(" ")[0]
@@ -122,11 +121,10 @@ class navigator:
                     except:
                         imdb = None
                 else:
-                    plot = ""
                     try:
                         plot = client.replaceHTMLCodes(client.parseDOM(details, 'p', attrs={'class': 'story'})[0])
                     except:
-                        pass
+                        plot = ""
                     poster = client.parseDOM(item, 'div', attrs={'class': 'poster'})[0]
                     img = client.parseDOM(poster, 'div', attrs={'class': 'img'})[0]
                     thumb = client.parseDOM(img, 'img', ret='src')[0]
@@ -177,7 +175,10 @@ class navigator:
             time = client.parseDOM(time, 'span')[0].replace('min', '').strip()
         except:
             time = 0
-        plot = client.replaceHTMLCodes(client.parseDOM(movieData, 'div', attrs={'class': 'description'})[0])
+        try:
+            plot = client.replaceHTMLCodes(client.parseDOM(movieData, 'div', attrs={'class': 'description'})[0])
+        except:
+            plot = ""
         try:
             imdb = client.parseDOM(movieData, 'div', attrs={'class': 'imdb-count'})[0].split(" ")[0]
         except:
@@ -206,7 +207,10 @@ class navigator:
             time = client.parseDOM(time, 'span')[0].replace('min', '').strip()
         except:
             time = 0
-        plot = client.replaceHTMLCodes(client.parseDOM(movieData, 'div', attrs={'class': 'description'})[0])
+        try:
+            plot = client.replaceHTMLCodes(client.parseDOM(movieData, 'div', attrs={'class': 'description'})[0])
+        except:
+            plot = ""
         subtitled = 0
         try:
             fullimdb = client.parseDOM(movieData, 'div', attrs={'class': 'imdb-count'})[0]
@@ -269,9 +273,25 @@ class navigator:
         try:
             src = client.parseDOM(url_content, 'iframe', ret='src')[0]
         except:
-            src = client.parseDOM(url_content, 'source', ret='src')[0]
+            try:
+                src = client.parseDOM(url_content, 'IFRAME', ret='SRC')[0]
+            except:
+                src = client.parseDOM(url_content, 'source', ret='src')[0]
         if "http" not in src:
             src = ("https:%s" % src)
+        if 'feltotesek.xyz' in src:
+            videoID = src.split("/v/")[1]
+            xbmc.log('FilmPapa: downloading feltotesek json. URL: https://feltotesek.xyz/api/source/%s' % videoID, xbmc.LOGINFO)
+            url_content = client.request("https://feltotesek.xyz/api/source/%s" % videoID, post=b"")
+            try:
+                jsonData = json.loads(url_content)
+                maxRes = 0
+                for data in jsonData["data"]:
+                    if int(data["label"].replace("p", "")) > maxRes:
+                        maxRes = int(data["label"].replace("p", ""))
+                        src = data["file"]
+            except:
+                pass
         xbmc.log('FilmPapa: resolving url: %s' % src, xbmc.LOGINFO)
         try:
             direct_url = urlresolver.resolve(src)
@@ -285,7 +305,7 @@ class navigator:
         if direct_url:
             xbmc.log('FilmPapa: playing URL: %s, subtitled: %s' % (direct_url, subtitled), xbmc.LOGINFO)
             play_item = xbmcgui.ListItem(path=direct_url)
-            if ("mxdcontent" in direct_url or "mxcontent" in direct_url) and self.downloadsubtitles:
+            if subtitled == '1' and self.downloadsubtitles:
                 errMsg = ""
                 try:
                     if not os.path.exists("%s/subtitles" % self.base_path):
