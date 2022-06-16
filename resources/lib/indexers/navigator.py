@@ -41,8 +41,12 @@ class navigator:
             locale.setlocale(locale.LC_ALL, "hu_HU.UTF-8")
         except:
             pass
-        self.infoPreload = xbmcaddon.Addon().getSettingBool('infopreload')
-        self.downloadsubtitles = xbmcaddon.Addon().getSettingBool('downloadsubtitles')
+        try:
+            self.infoPreload = xbmcaddon.Addon().getSettingBool('infopreload')
+            self.downloadsubtitles = xbmcaddon.Addon().getSettingBool('downloadsubtitles')
+        except:
+            self.infoPreload = xbmcaddon.Addon().getSetting('infopreload').lower() == 'true'
+            self.downloadsubtitles = xbmcaddon.Addon().getSetting('downloadsubtitles').lower() == 'true'
         self.base_path = py2_decode(control.dataPath)
         self.searchFileName = os.path.join(self.base_path, "search.history")
 
