@@ -1,4 +1,6 @@
-﻿[B]1.0.12~beta[/B]
+﻿[B]1.0.12[/B]
+- Film hossz rossz megadásának kezelése
+[B]1.0.12~beta[/B]
 - Kodi 17 támogatása
 [B]1.0.11[/B]
 - feltotesek.xyz források támogatása
