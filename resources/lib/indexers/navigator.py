@@ -21,6 +21,7 @@ import os,sys,re,xbmc,xbmcgui,xbmcplugin,xbmcaddon, time, locale, json
 import resolveurl as urlresolver
 from resources.lib.modules import client, control
 from resources.lib.modules.utils import py2_encode, py2_decode, safeopen
+from datetime import date
 
 if sys.version_info[0] == 3:
     import urllib.parse as urlparse
@@ -34,6 +35,8 @@ addonFanart = xbmcaddon.Addon().getAddonInfo('fanart')
 
 base_url = 'https://plusz.club/'
 series_url = 'series-category/sorozat-online/'
+years_url = 'release-year/%d/'
+start_year = 1938
 
 class navigator:
     def __init__(self):
@@ -56,6 +59,12 @@ class navigator:
         self.addDirectoryItem('Műfajok', 'categories', '', 'DefaultFolder.png')
         self.addDirectoryItem('Sorozatok', 'sorts&url=series-archive/', '', 'DefaultFolder.png')
         self.addDirectoryItem('Legújabb sorozat epizódok', 'items&itemlistnr=1', '', 'DefaultFolder.png')
+        self.addDirectoryItem('Megjelenés éve szerint', 'years', '', 'DefaultFolder.png');
+        self.endDirectory()
+
+    def getYears(self):
+        for year in range(date.today().year, start_year-1, -1):
+            self.addDirectoryItem(str(year), 'items&url=%s' % (years_url % year), '', 'DefaultFolder.png')
         self.endDirectory()
 
     def getCategories(self):

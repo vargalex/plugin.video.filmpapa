@@ -52,6 +52,9 @@ if action == None:
 if action == 'categories':
     navigator.navigator().getCategories()
 
+if action == 'years':
+    navigator.navigator().getYears()
+
 elif action == 'sorts':
     navigator.navigator().getSorts(url)
 
