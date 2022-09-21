@@ -43,7 +43,10 @@ class navigator:
         try:
             locale.setlocale(locale.LC_ALL, "hu_HU.UTF-8")
         except:
-            pass
+            try:
+                locale.setlocale(locale.LC_ALL, "")
+            except:
+                pass
         try:
             self.infoPreload = xbmcaddon.Addon().getSettingBool('infopreload')
             self.downloadsubtitles = xbmcaddon.Addon().getSettingBool('downloadsubtitles')
