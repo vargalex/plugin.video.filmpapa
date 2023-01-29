@@ -82,3 +82,6 @@ elif action == 'newsearch':
 elif action == 'deletesearchhistory':
     navigator.navigator().deleteSearchHistory()
 
+elif action == 'inputStreamSettings':
+    import xbmcaddon
+    xbmcaddon.Addon(id='inputstream.adaptive').openSettings()

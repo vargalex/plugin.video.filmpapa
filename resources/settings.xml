@@ -4,4 +4,7 @@
         <setting label="Részletes információ előtöltése" type="bool" id="infopreload" default="False"/>
         <setting label="Felirat letöltésének kísérlete" type="bool" id="downloadsubtitles" default="True"/>
 	</category>
+    <category label="InputStream">
+        <setting id="inputstreamsettings" type="action" label="InputStream Adaptive beállítások" option="close" action="RunPlugin(plugin://plugin.video.filmpapa/?action=inputStreamSettings)"></setting>
+    </category>
 </settings>

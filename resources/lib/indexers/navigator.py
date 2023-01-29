@@ -322,7 +322,16 @@ class navigator:
         if direct_url:
             xbmc.log('FilmPapa: playing URL: %s, subtitled: %s' % (direct_url, subtitled), xbmc.LOGINFO)
             play_item = xbmcgui.ListItem(path=direct_url)
-            if subtitled == '1' and self.downloadsubtitles:
+            if 'm3u8' in direct_url:
+                from inputstreamhelper import Helper
+                is_helper = Helper('hls')
+                if is_helper.check_inputstream():
+                    if sys.version_info < (3, 0):  # if python version < 3 is safe to assume we are running on Kodi 18
+                        play_item.setProperty('inputstreamaddon', 'inputstream.adaptive')   # compatible with Kodi 18 API
+                    else:
+                        play_item.setProperty('inputstream', 'inputstream.adaptive')  # compatible with recent builds Kodi 19 API
+                    play_item.setProperty('inputstream.adaptive.manifest_type', 'hls')
+            elif subtitled == '1' and self.downloadsubtitles:
                 errMsg = ""
                 try:
                     if not os.path.exists("%s/subtitles" % self.base_path):
