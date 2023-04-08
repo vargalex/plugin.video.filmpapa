@@ -1,4 +1,6 @@
-﻿[B]1.0.14[/B]
+﻿[B]1.0.15[/B]
+- Filemoon.sx linkek feloldása
+[B]1.0.14[/B]
 - Inputstream adaptive használata m3u8 linkek lejátszásakor
 [B]1.0.13[/B]
 - Megjelenés éve szerinti csoportosítás
