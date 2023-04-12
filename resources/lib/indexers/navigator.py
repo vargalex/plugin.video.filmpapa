@@ -318,7 +318,7 @@ class navigator:
                 script = client.parseDOM(content, "script", attrs={"data-cfasync": "false"})[0]
                 from resources.lib.modules import jsunpack
                 unpacked = jsunpack.unpack(script)
-                direct_url = re.search(r'file:"([^"]*)', unpacked).group(1)
+                direct_url = "%s|User-Agent=%s" % (re.search(r'file:"([^"]*)', unpacked).group(1), client.randomagent())
             except:
                 pass
         if direct_url == None:

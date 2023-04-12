@@ -1,4 +1,6 @@
-﻿[B]1.0.15[/B]
+﻿[B]1.0.16[/B]
+- Egyedi user agent filemoon m3u8 lejátszás eseté
+[B]1.0.15[/B]
 - Filemoon.sx linkek feloldása
 [B]1.0.14[/B]
 - Inputstream adaptive használata m3u8 linkek lejátszásakor
