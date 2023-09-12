@@ -311,27 +311,18 @@ class navigator:
                 pass
 
         direct_url = None
-        if "filemoon" in src:
-            xbmc.log('FilmPapa: URL %s source is filemoon Url, trying to self resolving it.' % src, xbmc.LOGINFO)
-            try:
-                content = client.request(src, referer="https://plusz.club")
-                script = client.parseDOM(content, "script", attrs={"data-cfasync": "false"})[0]
-                from resources.lib.modules import jsunpack
-                unpacked = jsunpack.unpack(script)
-                direct_url = "%s|User-Agent=%s" % (re.search(r'file:"([^"]*)', unpacked).group(1), client.randomagent())
-            except:
-                pass
-        if direct_url == None:
-            try:
-                xbmc.log('FilmPapa: resolving URL %s with ResolveURL' % src, xbmc.LOGINFO)
-                direct_url = urlresolver.resolve(src)
-                if direct_url:
-                    direct_url = py2_encode(direct_url)
-                else:
-                    direct_url = src
-            except Exception as e:
-                xbmcgui.Dialog().notification(urlparse.urlparse(url).hostname, str(e))
-                return
+        if "filemoon" in src or "streamwish" in src:
+            src = "%s$$%s" % (src, base_url)
+        try:
+            xbmc.log('FilmPapa: resolving URL %s with ResolveURL' % src, xbmc.LOGINFO)
+            direct_url = urlresolver.resolve(src)
+            if direct_url:
+                direct_url = py2_encode(direct_url)
+            else:
+                direct_url = src
+        except Exception as e:
+            xbmcgui.Dialog().notification(urlparse.urlparse(url).hostname, str(e))
+            return
         if direct_url:
             xbmc.log('FilmPapa: playing URL: %s, subtitled: %s' % (direct_url, subtitled), xbmc.LOGINFO)
             play_item = xbmcgui.ListItem(path=direct_url)

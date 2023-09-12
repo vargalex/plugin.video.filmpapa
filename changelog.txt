@@ -1,4 +1,6 @@
-﻿[B]1.0.17[/B]
+﻿[B]1.0.18[/B]
+- Média URL feloldás javítása
+[B]1.0.17[/B]
 - Verzió bugfix
 [B]1.0.16[/B]
 - Random (windows) user agent használata filemoon m3u8 lejátszás esetén
