@@ -1,4 +1,6 @@
-﻿[B]1.0.18[/B]
+﻿[B]1.0.19[/B]
+- Sorozat feloldás javítása
+[B]1.0.18[/B]
 - Média URL feloldás javítása
 [B]1.0.17[/B]
 - Verzió bugfix

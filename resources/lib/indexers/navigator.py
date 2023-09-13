@@ -311,6 +311,10 @@ class navigator:
                 pass
 
         direct_url = None
+        pattern = r'(.*?://|\.)((?:filemoon|cinegrab|moonmov)\.(?:sx|to|in|link|nl|wf|com|eu|art|pro))/(?:e|d)/([0-9a-zA-Z]+)'
+        match = re.search(pattern, src)
+        if match:
+            src = match.group(0)
         if "filemoon" in src or "streamwish" in src:
             src = "%s$$%s" % (src, base_url)
         try:
