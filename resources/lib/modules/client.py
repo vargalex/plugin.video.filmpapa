@@ -63,7 +63,11 @@ def request(url, close=True, error=False, proxy=None, post=None, headers=None, m
         elif not cookie == None:
             headers['Cookie'] = cookie
 
-        request = urllib2.Request(url, data=post, headers=headers)
+
+        if sys.version_info[0] == 3:
+            request = urllib2.Request(url, data=(post.encode('utf-8') if post != None else post), headers=headers)
+        else:
+            request = urllib2.Request(url, data=post, headers=headers)
 
         try:
             response = urllib2.urlopen(request, timeout=int(timeout))

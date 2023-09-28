@@ -1,4 +1,7 @@
-﻿[B]1.0.19[/B]
+﻿[B]1.0.20[/B]
+- Forrás változás követése
+- Bejelentkezés
+[B]1.0.19[/B]
 - Sorozat feloldás javítása
 [B]1.0.18[/B]
 - Média URL feloldás javítása

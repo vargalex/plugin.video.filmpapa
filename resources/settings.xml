@@ -4,6 +4,14 @@
         <setting label="Részletes információ előtöltése" type="bool" id="infopreload" default="False"/>
         <setting label="Felirat letöltésének kísérlete" type="bool" id="downloadsubtitles" default="True"/>
 	</category>
+    <category label="Bejelentkezés">
+        <setting label="Felhasználónév" type="text" id="username" default=""/>
+        <setting label="Jelszó" type="text" id="password" default=""/>
+        <setting id="logincookiename" visible="false" default=""/>
+        <setting id="logincookievalue" visible="false" default=""/>
+        <setting id="loggedin" visible="false" default="false"/>
+        <setting id="logout" type="action" label="[B][COLOR red]Kijelentkezés[/COLOR][/B]" option="close" action="RunPlugin(plugin://plugin.video.filmpapa/?action=logout)" visible="eq(-1,true)"/>
+    </category>
     <category label="InputStream">
         <setting id="inputstreamsettings" type="action" label="InputStream Adaptive beállítások" option="close" action="RunPlugin(plugin://plugin.video.filmpapa/?action=inputStreamSettings)"></setting>
     </category>

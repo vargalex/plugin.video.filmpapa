@@ -38,11 +38,7 @@ search = params.get('search')
 
 page = params.get('page')
 
-itemlistNr = params.get('itemlistnr')
-
 sort = params.get('sort')
-
-serieid = params.get('serieid')
 
 subtitled = params.get('subtitled')
 
@@ -59,13 +55,10 @@ elif action == 'sorts':
     navigator.navigator().getSorts(url)
 
 elif action == 'items':
-    navigator.navigator().getItems(url, page, itemlistNr, sort, search)
-
-elif action == 'series':
-    navigator.navigator().getSeries(url)
+    navigator.navigator().getItems(url, page, sort, search)
 
 elif action == 'episodes':
-    navigator.navigator().getEpisodes(url, serieid)
+    navigator.navigator().getEpisodes(url)
 
 elif action == 'playmovie':
     navigator.navigator().playMovie(url, subtitled)
@@ -85,3 +78,6 @@ elif action == 'deletesearchhistory':
 elif action == 'inputStreamSettings':
     import xbmcaddon
     xbmcaddon.Addon(id='inputstream.adaptive').openSettings()
+
+elif action == 'logout':
+    navigator.navigator().logout()
