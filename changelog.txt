@@ -1,4 +1,6 @@
-﻿[B]1.0.20[/B]
+﻿[B]1.0.21[/B]
+- Keresés bugfix
+[B]1.0.20[/B]
 - Forrás változás követése
 - Bejelentkezés
 [B]1.0.19[/B]

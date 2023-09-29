@@ -67,7 +67,7 @@ elif action == 'search':
     navigator.navigator().getSearches()
 
 elif action == 'historysearch':
-    navigator.navigator().getItems(None, 1, None, None, search)
+    navigator.navigator().getItems(None, 1, None, search)
 
 elif action == 'newsearch':
     navigator.navigator().doSearch()

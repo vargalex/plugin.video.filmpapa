@@ -219,7 +219,7 @@ class navigator:
         self.endDirectory('episodes')
 
     def getSearches(self):
-        self.addDirectoryItem('Új keresés', 'newsearch', '', 'DefaultFolder.png')
+        self.addDirectoryItem('[COLOR lightgreen]Új keresés[/COLOR]', 'newsearch', '', 'DefaultFolder.png')
         try:
             file = safeopen(self.searchFileName, "r")
             olditems = file.read().splitlines()
@@ -233,7 +233,7 @@ class navigator:
             for item in items:
                 self.addDirectoryItem(item, 'historysearch&search=%s' % (quote_plus(item)), '', 'DefaultFolder.png')
             if len(items) > 0:
-                self.addDirectoryItem('Keresési előzmények törlése', 'deletesearchhistory', '', 'DefaultFolder.png') 
+                self.addDirectoryItem('[COLOR red]Keresési előzmények törlése[/COLOR]', 'deletesearchhistory', '', 'DefaultFolder.png') 
         except:
             pass   
         self.endDirectory()
@@ -250,7 +250,7 @@ class navigator:
             file = safeopen(self.searchFileName, "a")
             file.write("%s\n" % search_text)
             file.close()
-            self.getItems(None, 1, None, None, search_text)
+            self.getItems(None, 1, None, search_text)
 
 
     def playMovie(self, url, subtitled):
