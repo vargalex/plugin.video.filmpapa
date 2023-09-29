@@ -381,7 +381,7 @@ class navigator:
     def login(self):
         if self.loggedin != "true":
             xbmc.log('FilmPapa: Trying to login.', xbmc.LOGINFO)
-            data = "log=%s&pwd=%s" % (control.setting("username"), control.setting("password"))
+            data = "log=%s&pwd=%s" % (quote_plus(control.setting("username")), quote_plus(control.setting("password")))
             cookies = client.request("%s%s" % (base_url, login_url), post=data, output="cookie")
             if cookies:
                 cookies = dict(i.split('=', 1) for i in cookies.split('; '))
@@ -395,7 +395,7 @@ class navigator:
                         self.logincookiename = cookie
                         self.logincookievalue = cookies[cookie]
                         break
-            else:
+            if self.loggedin != "true":
                 xbmc.log('FilmPapa: Login failed.', xbmc.LOGINFO)
                 xbmcgui.Dialog().ok("FilmPapa HD", "Sikertelen bejelentkezés!\nHibás felhasználónév, vagy jelszó!")
 
