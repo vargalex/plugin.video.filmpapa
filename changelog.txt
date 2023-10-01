@@ -1,4 +1,8 @@
-﻿[B]1.0.22[/B]
+﻿[B]1.0.23[/B]
+- Jelszó elrejtése a beállításokban
+- Hivatkozás megjelenítése a forrás oldalhoz
+- Első login bugfix
+[B]1.0.22[/B]
 - Speciális karakterek kezelése a felhasználó névben/jelszóban
 [B]1.0.21[/B]
 - Keresés bugfix

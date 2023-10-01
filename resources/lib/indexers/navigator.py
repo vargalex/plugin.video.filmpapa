@@ -31,7 +31,7 @@ else:
     from urllib import quote_plus
 
 sysaddon = sys.argv[0] ; syshandle = int(sys.argv[1])
-addonFanart = xbmcaddon.Addon().getAddonInfo('fanart')
+addonFanart = control.addonInfo('fanart')
 
 base_url = 'https://filmpapa.filmadatbazis.site/'
 series_url = 'series-category/sorozat-online/'
@@ -61,9 +61,9 @@ class navigator:
         self.base_path = py2_decode(control.dataPath)
         self.searchFileName = os.path.join(self.base_path, "search.history")
         if not (control.setting('username') and control.setting('password')):
-            if xbmcgui.Dialog().ok('FilmPapa HD', 'A kiegészítő használatához add meg a bejelentkezési adataidat!'):
+            if xbmcgui.Dialog().ok('FilmPapa HD', 'A kiegészítő használatához add meg a [COLOR skyblue]https://filmpapa.filmadatbazis.site/[/COLOR] oldalhoz tartozó bejelentkezési adataidat!'):
                 xbmc.executebuiltin('Dialog.Close(busydialognocancel)')
-                control.openSettings()
+                control.addon(control.addonInfo('id')).openSettings()
         self.loggedin = control.setting('loggedin')
         self.logincookiename = control.setting('logincookiename')
         self.logincookievalue = control.setting('logincookievalue')
@@ -381,7 +381,7 @@ class navigator:
     def login(self):
         if self.loggedin != "true":
             xbmc.log('FilmPapa: Trying to login.', xbmc.LOGINFO)
-            data = "log=%s&pwd=%s" % (quote_plus(control.setting("username")), quote_plus(control.setting("password")))
+            data = "log=%s&pwd=%s" % (quote_plus(xbmcaddon.Addon().getSetting("username")), quote_plus(xbmcaddon.Addon().getSetting("password")))
             cookies = client.request("%s%s" % (base_url, login_url), post=data, output="cookie")
             if cookies:
                 cookies = dict(i.split('=', 1) for i in cookies.split('; '))

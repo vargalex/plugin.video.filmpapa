@@ -6,7 +6,7 @@
 	</category>
     <category label="Bejelentkezés">
         <setting label="Felhasználónév" type="text" id="username" default=""/>
-        <setting label="Jelszó" type="text" id="password" default=""/>
+        <setting label="Jelszó" type="text" id="password" option="hidden" default=""/>
         <setting id="logincookiename" visible="false" default=""/>
         <setting id="logincookievalue" visible="false" default=""/>
         <setting id="loggedin" visible="false" default="false"/>

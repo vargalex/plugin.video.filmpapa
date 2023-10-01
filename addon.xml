@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.filmpapa" name="FilmPapa HD" version="1.0.22" provider-name="vargalex">
+<addon id="plugin.video.filmpapa" name="FilmPapa HD" version="1.0.23" provider-name="vargalex">
 	<requires>
 		<import addon="script.module.resolveurl" version="5.1.00"/>
 		<import addon="script.module.inputstreamhelper" version="0.4.3"/>
@@ -12,7 +12,9 @@
 		<description lang="en">Nézd meg a filmeket, sorozatokat a https://plusz.club oldalról!</description>
 		<language>hu</language>
 		<platform>all</platform>
-		<news>- Speciális karakterek kezelése a felhasználó névben/jelszóban
+		<news>- Jelszó elrejtése a beállításokban
+		- Hivatkozás megjelenítése a forrás oldalhoz
+		- Első login bugfix
 		</news>
 		<assets>
 		  <icon>icon.png</icon>
