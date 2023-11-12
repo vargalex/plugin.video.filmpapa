@@ -177,7 +177,7 @@ class navigator:
                             felirat = 1
                     except:
                         pass
-                context = [["Hozzáadás a megnézendő listához", "adddeletelist&listtype=later&nonce=%s&dataid=%s" % (nonce, dataID)], ["Hozzáadás a FilmPapa kedvencekhez", "adddeletelist&listtype=fav&nonce=%s&dataid=%s" % (nonce, dataID)]]
+                context = [["Hozzáadás/törlés a megnézendő listához/ból", "adddeletelist&listtype=later&nonce=%s&dataid=%s" % (nonce, dataID)], ["Hozzáadás/törlés a FilmPapa kedvencekhez/ből", "adddeletelist&listtype=fav&nonce=%s&dataid=%s" % (nonce, dataID)]]
                 self.addDirectoryItem('%s%s%s%s' % (title, "" if len(year) == 0 else " ([COLOR red]%s[/COLOR])" % year, "" if imdb == None else " | [COLOR yellow]IMDB: %s[/COLOR]" % imdb, "" if felirat == 0 else " | [COLOR lime]Feliratos[/COLOR]"), 'episodes&url=%s' % (quote_plus(newurl)), thumb, 'DefaultMovies.png', isFolder=True, meta={'title': title, 'plot': plot, 'duration': time*60}, banner=thumb, context=context)
             try:
                 navicenter = client.parseDOM(url_content, 'div', attrs={'class': 'navicenter'})[0]
@@ -468,7 +468,7 @@ class navigator:
             data = json.loads(result)
             if data["error"] == False:
                 res = re.search(r'.*</span>(.*)', data["html"])[1]
-                xbmcgui.Dialog().ok("FilmPapa", "Sikeres: %s" % res)
+                xbmcgui.Dialog().ok("FilmPapa", "%s a %s listá%s" % ("Hozzáadva" if "Törlés" in res else "Törölve", "kedvencek" if "fav" == option else "megnézendő", "hoz" if "Törlés" in res else "ból"))
             else:
                 xbmcgui.Dialog().ok("FilmPapa", "Sikertelen művelet!")
         except:
