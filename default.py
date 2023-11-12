@@ -42,6 +42,12 @@ sort = params.get('sort')
 
 subtitled = params.get('subtitled')
 
+dataID = params.get('dataid')
+
+listtype = params.get('listtype')
+
+nonce = params.get('nonce')
+
 if action == None:
     navigator.navigator().getRoot()
 
@@ -79,5 +85,11 @@ elif action == 'inputStreamSettings':
     import xbmcaddon
     xbmcaddon.Addon(id='inputstream.adaptive').openSettings()
 
+elif action == 'watchlist':
+    navigator.navigator().getWatchList(url)
+
 elif action == 'logout':
     navigator.navigator().logout()
+
+elif action == 'adddeletelist':
+    navigator.navigator().addDeleteList(listtype, dataID, nonce)

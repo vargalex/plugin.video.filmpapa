@@ -1,4 +1,8 @@
-﻿[B]1.0.23[/B]
+﻿[B]1.0.24[/B]
+- Több forrás támogatása
+- Megnézendő lista támogatása
+- Kedvencek lista támogatása
+[B]1.0.23[/B]
 - Jelszó elrejtése a beállításokban
 - Hivatkozás megjelenítése a forrás oldalhoz
 - Első login bugfix
