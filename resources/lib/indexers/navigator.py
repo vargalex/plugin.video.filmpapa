@@ -108,13 +108,14 @@ class navigator:
         self.endDirectory()
 
     def getItems(self, url, page, sort, search):
+        url_content = self.requestWithLoginCookie(base_url)
+        nonce = json.loads(re.search(r'{"ajax_url":[^}]*}', url_content)[0])["nonce"]
         url = url or ""
         sort = sort or ""
         searchparam = "" if search == None else "&s=%s" % quote_plus(search)
         page = page or "1"
         url_content = self.requestWithLoginCookie("%s%spage/%s/?sort=%s%s" % (base_url, url, page, sort, searchparam))
         try:
-            nonce = json.loads(re.search(r'{"ajax_url":[^}]*}', url_content)[0])["nonce"]
             listItems = client.parseDOM(url_content, 'div', attrs={'class': '[^\'"]*list_items.*?'})[0]
             items = client.parseDOM(listItems, 'div', attrs={'class': 'movie-preview-content'})
             for item in items:
