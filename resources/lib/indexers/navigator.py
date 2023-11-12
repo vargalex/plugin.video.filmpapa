@@ -164,10 +164,10 @@ class navigator:
                         plot = ""
                     poster = client.parseDOM(item, 'div', attrs={'class': 'movie-poster'})[0]
                     thumb = client.parseDOM(poster, 'img', ret='src')[0]
-                    release = client.parseDOM(details, 'span', attrs={'class': 'movie-release'})[0]
                     time = 0
                     year = ""
                     try:
+                        release = client.parseDOM(details, 'span', attrs={'class': 'movie-release'})[0]
                         year = re.search(r"([^<]*)(<|$)", release)[1].strip()
                     except:
                         pass
@@ -233,8 +233,11 @@ class navigator:
         title = client.parseDOM(title, 'h1')[0]
         poster = client.parseDOM(info_left, 'div', attrs={'class': 'poster'})[0]
         thumb = client.parseDOM(poster, 'img', ret='src')[0]
-        release = client.parseDOM(info_right, 'div', attrs={'class': 'release'})[0]
-        year = client.parseDOM(release, 'a')[0]
+        try:
+            release = client.parseDOM(info_right, 'div', attrs={'class': 'release'})[0]
+            year = client.parseDOM(release, 'a')[0]
+        except:
+            year = None
         try:
             time = client.parseDOM(info_right, 'li', attrs={'class': 'time'})[0]
             time = client.parseDOM(time, 'span')[0].replace('min', '').strip()

@@ -1,4 +1,6 @@
-﻿[B]1.0.25[/B]
+﻿[B]1.0.26[/B]
+- Year bugfix
+[B]1.0.25[/B]
 - Keresés bugfix
 [B]1.0.24[/B]
 - Több forrás támogatása
