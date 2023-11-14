@@ -109,7 +109,7 @@ class navigator:
 
     def getItems(self, url, page, sort, search):
         url_content = self.requestWithLoginCookie(base_url)
-        nonce = json.loads(re.search(r'{"ajax_url":[^}]*}', url_content)[0])["nonce"]
+        nonce = json.loads(re.search(r'{"ajax_url":[^}]*}', url_content).group(0))["nonce"]
         url = url or ""
         sort = sort or ""
         searchparam = "" if search == None else "&s=%s" % quote_plus(search)
@@ -152,7 +152,7 @@ class navigator:
                         plot = ""
                     try:
                         fullimdb = client.parseDOM(detail_content, 'span', attrs={'class': 'imdb-rating'})[0]
-                        imdb = re.search(r"([^<]*)(<|$)", fullimdb)[1].strip()
+                        imdb = re.search(r"([^<]*)(<|$)", fullimdb).group(1).strip()
                         if "felirat" in fullimdb.lower():
                             felirat = 1
                     except:
@@ -168,7 +168,7 @@ class navigator:
                     year = ""
                     try:
                         release = client.parseDOM(details, 'span', attrs={'class': 'movie-release'})[0]
-                        year = re.search(r"([^<]*)(<|$)", release)[1].strip()
+                        year = re.search(r"([^<]*)(<|$)", release).group(1).strip()
                     except:
                         pass
                     imdb = None
@@ -194,7 +194,7 @@ class navigator:
     def getWatchList(self, url):
         url_content = self.requestWithLoginCookie("%ssettings/?q=%s" % (base_url, url))
         try:
-            nonce = json.loads(re.search(r'{"ajax_url":[^}]*}', url_content)[0])["nonce"]
+            nonce = json.loads(re.search(r'{"ajax_url":[^}]*}', url_content).group(0))["nonce"]
             listItems = client.parseDOM(url_content, 'div', attrs={'class': '[^\'"]*list_items.*?'})[0]
             items = client.parseDOM(listItems, 'div', attrs={'class': 'series-preview .*?'})
             for item in items:
@@ -214,7 +214,7 @@ class navigator:
                 try:
                     movieInfo = client.parseDOM(details, 'div', attrs={'class': 'movie-info'})[0]
                     imdb = client.parseDOM(movieInfo, "span", attrs={'class': '.*? imdb .*?'})[0]
-                    imdb = re.search(r"([^<]*)(<|$)", imdb)[1].strip()
+                    imdb = re.search(r"([^<]*)(<|$)", imdb).group(1).strip()
                 except:
                     pass
                 dataID = client.parseDOM(item, "span", attrs={'original-title': 'Remove'}, ret="data-id")[0]
@@ -249,7 +249,7 @@ class navigator:
             plot = ""
         try:
             imdb = client.parseDOM(detail_content, 'span', attrs={'class': 'imdb-rating'})[0]
-            imdb = re.search(r"([^<]*)(<|$)", imdb)[1].strip()
+            imdb = re.search(r"([^<]*)(<|$)", imdb).group(1).strip()
         except:
             imdb = None
         parts_middle = client.parseDOM(url_content, 'div', attrs={'class': 'parts-middle'})[0]
@@ -471,7 +471,7 @@ class navigator:
         try:
             data = json.loads(result)
             if data["error"] == False:
-                res = re.search(r'.*</span>(.*)', data["html"])[1]
+                res = re.search(r'.*</span>(.*)', data["html"]).group(1)
                 xbmcgui.Dialog().ok("FilmPapa", "%s a %s listá%s" % ("Hozzáadva" if "Törlés" in res else "Törölve", "kedvencek" if "fav" == option else "megnézendő", "hoz" if "Törlés" in res else "ból"))
             else:
                 xbmcgui.Dialog().ok("FilmPapa", "Sikertelen művelet!")
