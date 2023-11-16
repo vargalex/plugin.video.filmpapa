@@ -46,6 +46,7 @@ class navigator:
         self.loggedin = None
         self.logincookiename = None
         self.logincookievalue = None
+        self.nonce = None
         try:
             locale.setlocale(locale.LC_ALL, "hu_HU.UTF-8")
         except:
@@ -61,15 +62,12 @@ class navigator:
             self.downloadsubtitles = xbmcaddon.Addon().getSetting('downloadsubtitles').lower() == 'true'
         self.base_path = py2_decode(control.dataPath)
         self.searchFileName = os.path.join(self.base_path, "search.history")
-        if not (control.setting('username') and control.setting('password')):
-            if xbmcgui.Dialog().ok('FilmPapa HD', 'A kiegészítő használatához add meg a [COLOR skyblue]https://filmpapa.filmadatbazis.site/[/COLOR] oldalhoz tartozó bejelentkezési adataidat!'):
-                xbmc.executebuiltin('Dialog.Close(busydialognocancel)')
-                control.addon(control.addonInfo('id')).openSettings()
-        self.loggedin = control.setting('loggedin')
-        self.logincookiename = control.setting('logincookiename')
-        self.logincookievalue = control.setting('logincookievalue')
-
-        self.login()
+        if (control.setting('username') and control.setting('password')):
+            self.loggedin = control.setting('loggedin')
+            self.logincookiename = control.setting('logincookiename')
+            self.logincookievalue = control.setting('logincookievalue')
+            self.nonce = control.setting('nonce')
+            self.requestWithLoginCookie(base_url)
 
 
     def getRoot(self):
@@ -80,8 +78,9 @@ class navigator:
         self.addDirectoryItem('Kollekciók', 'sorts&url=category/online-hd-film-sorozat/', '', 'DefaultFolder.png')
         self.addDirectoryItem('Műfajok', 'categories', '', 'DefaultFolder.png')
         self.addDirectoryItem('Megjelenés éve szerint', 'years', '', 'DefaultFolder.png')
-        self.addDirectoryItem('Megnézendő', 'watchlist&url=my-watchlist', '', 'DefaultFolder.png')
-        self.addDirectoryItem('Kedvencek', 'watchlist&url=my-favorite-movies', '', 'DefaultFolder.png')
+        if self.loggedin == "true":
+            self.addDirectoryItem('Megnézendő', 'watchlist&url=my-watchlist', '', 'DefaultFolder.png')
+            self.addDirectoryItem('Kedvencek', 'watchlist&url=my-favorite-movies', '', 'DefaultFolder.png')
         self.endDirectory()
 
     def getYears(self):
@@ -108,13 +107,14 @@ class navigator:
         self.endDirectory()
 
     def getItems(self, url, page, sort, search):
-        url_content = self.requestWithLoginCookie(base_url)
-        nonce = json.loads(re.search(r'{"ajax_url":[^}]*}', url_content).group(0))["nonce"]
         url = url or ""
         sort = sort or ""
         searchparam = "" if search == None else "&s=%s" % quote_plus(search)
         page = page or "1"
-        url_content = self.requestWithLoginCookie("%s%spage/%s/?sort=%s%s" % (base_url, url, page, sort, searchparam))
+        if self.loggedin == "true":
+            url_content = self.requestWithLoginCookie("%s%spage/%s/?sort=%s%s" % (base_url, url, page, sort, searchparam))
+        else:
+            url_content = client.request("%s%spage/%s/?sort=%s%s" % (base_url, url, page, sort, searchparam))
         try:
             listItems = client.parseDOM(url_content, 'div', attrs={'class': '[^\'"]*list_items.*?'})[0]
             items = client.parseDOM(listItems, 'div', attrs={'class': 'movie-preview-content'})
@@ -130,7 +130,10 @@ class navigator:
                 newurl = client.parseDOM(span, 'a', ret='href')[0]
                 felirat = 0
                 if self.infoPreload:
-                    detail_content = self.requestWithLoginCookie(newurl)
+                    if self.loggedin == "true":
+                        detail_content = self.requestWithLoginCookie(newurl)
+                    else:
+                        detail_content = client.request(newurl)
                     info_left = client.parseDOM(detail_content, 'div', attrs={'class': 'info-left'})[0]
                     info_right = client.parseDOM(detail_content, 'div', attrs={'class': 'info-right'})[0]
                     poster = client.parseDOM(info_left, 'div', attrs={'class': 'poster'})[0]
@@ -178,7 +181,7 @@ class navigator:
                             felirat = 1
                     except:
                         pass
-                context = [["Hozzáadás/törlés a megnézendő listához/ból", "adddeletelist&listtype=later&nonce=%s&dataid=%s" % (nonce, dataID)], ["Hozzáadás/törlés a FilmPapa kedvencekhez/ből", "adddeletelist&listtype=fav&nonce=%s&dataid=%s" % (nonce, dataID)]]
+                context = [["Hozzáadás/törlés a megnézendő listához/ból", "adddeletelist&listtype=later&dataid=%s" % dataID], ["Hozzáadás/törlés a FilmPapa kedvencekhez/ből", "adddeletelist&listtype=fav&dataid=%s" % dataID]]
                 self.addDirectoryItem('%s%s%s%s' % (title, "" if len(year) == 0 else " ([COLOR red]%s[/COLOR])" % year, "" if imdb == None else " | [COLOR yellow]IMDB: %s[/COLOR]" % imdb, "" if felirat == 0 else " | [COLOR lime]Feliratos[/COLOR]"), 'episodes&url=%s' % (quote_plus(newurl)), thumb, 'DefaultMovies.png', isFolder=True, meta={'title': title, 'plot': plot, 'duration': time*60}, banner=thumb, context=context)
             try:
                 navicenter = client.parseDOM(url_content, 'div', attrs={'class': 'navicenter'})[0]
@@ -194,7 +197,6 @@ class navigator:
     def getWatchList(self, url):
         url_content = self.requestWithLoginCookie("%ssettings/?q=%s" % (base_url, url))
         try:
-            nonce = json.loads(re.search(r'{"ajax_url":[^}]*}', url_content).group(0))["nonce"]
             listItems = client.parseDOM(url_content, 'div', attrs={'class': '[^\'"]*list_items.*?'})[0]
             items = client.parseDOM(listItems, 'div', attrs={'class': 'series-preview .*?'})
             for item in items:
@@ -218,7 +220,7 @@ class navigator:
                 except:
                     pass
                 dataID = client.parseDOM(item, "span", attrs={'original-title': 'Remove'}, ret="data-id")[0]
-                context = [["Eltávolítás a %s" % ("megnézendő listából" if "watchlist" in url else "a FilmPapa kedvencekből"), "adddeletelist&listtype=%s&dataid=%s&nonce=%s" % ("later" if "watchlist" in url else "fav", dataID, nonce)]]
+                context = [["Eltávolítás a %s" % ("megnézendő listából" if "watchlist" in url else "a FilmPapa kedvencekből"), "adddeletelist&listtype=%s&dataid=%s" % ("later" if "watchlist" in url else "fav", dataID)]]
                 self.addDirectoryItem('%s%s%s' % (title, "" if len(year) == 0 else " ([COLOR red]%s[/COLOR])" % year, "" if imdb == None else " | [COLOR yellow]IMDB: %s[/COLOR]" % imdb), 'episodes&url=%s' % (quote_plus(newurl)), thumb, 'DefaultMovies.png', context=context, isFolder=True, meta={'title': title, 'plot': plot, 'duration': time*60}, banner=thumb)
         except:
             pass
@@ -226,7 +228,10 @@ class navigator:
 
 
     def getEpisodes(self, url):
-        url_content = self.requestWithLoginCookie(url)
+        if self.loggedin == "true":
+            url_content = self.requestWithLoginCookie(url)
+        else:
+            url_content = client.request(url)
         info_left = client.parseDOM(url_content, 'div', attrs={'class': 'info-left'})[0]
         info_right = client.parseDOM(url_content, 'div', attrs={'class': 'info-right'})[0]
         title = client.parseDOM(info_right, 'div', attrs={'class': 'title'})[0]
@@ -305,7 +310,10 @@ class navigator:
 
 
     def playMovie(self, url, subtitled):
-        url_content = self.requestWithLoginCookie(url)
+        if self.loggedin == "true":
+            url_content = self.requestWithLoginCookie(url)
+        else:
+            url_content = client.request(url)
         try:
             src = client.parseDOM(url_content, 'iframe', ret='src')[0]
         except:
@@ -429,6 +437,11 @@ class navigator:
             control.setSetting('logincookiename', '')
             control.setSetting('logincookievalue', '')
             control.setSetting('loggedin', 'false')
+            control.setSetting('nonce', '')
+            self.logincookiename = ''
+            self.logincookievalue = ''
+            self.loggedin = 'false'
+            self.nonce = ''
             dialog.ok('Filmpapa HD', u'Sikeresen kijelentkeztél.\nAz adataid törlésre kerültek a kiegészítőből.')
 
     def login(self):
@@ -457,17 +470,20 @@ class navigator:
         if self.loggedin == "true":
             cookie = "%s=%s" % (self.logincookiename, self.logincookievalue)
             url_content = client.request(url, cookie=cookie, post=post)
-        if not url_content or ("%s%s" % (base_url, notmember_url)) in url_content:
+        if self.loggedin != "true" or not url_content or "login-or-register" in url_content:
             control.setSetting('loggedin', 'false')
             self.loggedin = 'false'
-            xbmc.log('FilmPapa: Not member page received. Cookie expired?', xbmc.LOGINFO)
+            xbmc.log('FilmPapa: Not logged in page received. Cookie expired?', xbmc.LOGINFO)
             self.login()
             cookie = "%s=%s" % (self.logincookiename, self.logincookievalue)
             url_content = client.request(url, cookie=cookie, post=post)
+            if not post:
+                self.nonce = json.loads(re.search(r'{"ajax_url":[^}]*}', url_content).group(0))["nonce"]
+                control.setSetting('nonce', self.nonce)
         return url_content
 
-    def addDeleteList(self, option, dataid, nonce):
-        result = self.requestWithLoginCookie("%s%s" % (base_url, admin_url), post="action=keremiya_addto&this=%s&nonce=%s&post_id=%s" % (option, nonce, dataid))
+    def addDeleteList(self, option, dataid):
+        result = self.requestWithLoginCookie("%s%s" % (base_url, admin_url), post="action=keremiya_addto&this=%s&nonce=%s&post_id=%s" % (option, self.nonce, dataid))
         try:
             data = json.loads(result)
             if data["error"] == False:

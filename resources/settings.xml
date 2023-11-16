@@ -9,6 +9,7 @@
         <setting label="Jelszó" type="text" id="password" option="hidden" default=""/>
         <setting id="logincookiename" visible="false" default=""/>
         <setting id="logincookievalue" visible="false" default=""/>
+        <setting id="nonce" visible="false" default=""/>
         <setting id="loggedin" visible="false" default="false"/>
         <setting id="logout" type="action" label="[B][COLOR red]Kijelentkezés[/COLOR][/B]" option="close" action="RunPlugin(plugin://plugin.video.filmpapa/?action=logout)" visible="eq(-1,true)"/>
     </category>
