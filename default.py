@@ -46,8 +46,6 @@ dataID = params.get('dataid')
 
 listtype = params.get('listtype')
 
-nonce = params.get('nonce')
-
 if action == None:
     navigator.navigator().getRoot()
 
@@ -92,4 +90,4 @@ elif action == 'logout':
     navigator.navigator().logout()
 
 elif action == 'adddeletelist':
-    navigator.navigator().addDeleteList(listtype, dataID, nonce)
+    navigator.navigator().addDeleteList(listtype, dataID)

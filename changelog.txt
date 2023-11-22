@@ -1,4 +1,6 @@
-﻿[B]1.0.28[/B]
+﻿[B]1.0.29[/B]
+- Bejelentkezés változás követése
+[B]1.0.28[/B]
 - Bejelentkezés opcionális
 [B]1.0.27[/B]
 - Leia bugfix

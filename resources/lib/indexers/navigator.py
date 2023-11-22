@@ -33,11 +33,10 @@ else:
 sysaddon = sys.argv[0] ; syshandle = int(sys.argv[1])
 addonFanart = control.addonInfo('fanart')
 
-base_url = 'https://filmpapa.filmadatbazis.site/'
+base_url = 'https://filmadatbazis.site/filmpapa/'
 series_url = 'series-category/sorozat-online/'
 years_url = 'release/%d/'
 start_year = 1938
-login_url = 'wp-login.php'
 admin_url = 'wp-admin/admin-ajax.php'
 notmember_url = 'ugy-tunik-meg-nem-filmpapa-tag'
 
@@ -447,8 +446,10 @@ class navigator:
     def login(self):
         if self.loggedin != "true":
             xbmc.log('FilmPapa: Trying to login.', xbmc.LOGINFO)
-            data = "log=%s&pwd=%s" % (quote_plus(xbmcaddon.Addon().getSetting("username")), quote_plus(xbmcaddon.Addon().getSetting("password")))
-            cookies = client.request("%s%s" % (base_url, login_url), post=data, output="cookie")
+            content = client.request(base_url)
+            nonce = client.parseDOM(content, "input", attrs={"name": "nonce"}, ret="value")[0]
+            data = "action=keremiya_user_action&form=%s" % quote_plus("login_username=%s&login_password=%s&keremiya_action=login&nonce=%s" % (xbmcaddon.Addon().getSetting("username"), xbmcaddon.Addon().getSetting("password"), nonce))
+            cookies = client.request("%s%s" % (base_url, admin_url), post=data, output="cookie")
             if cookies:
                 cookies = dict(i.split('=', 1) for i in cookies.split('; '))
                 for cookie in cookies:
