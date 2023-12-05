@@ -1,4 +1,6 @@
-﻿[B]1.0.29[/B]
+﻿[B]1.0.30[/B]
+- Omega kompatibilitás
+[B]1.0.29[/B]
 - Bejelentkezés változás követése
 [B]1.0.28[/B]
 - Bejelentkezés opcionális

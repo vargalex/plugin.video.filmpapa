@@ -364,6 +364,11 @@ class navigator:
                         play_item.setProperty('inputstreamaddon', 'inputstream.adaptive')   # compatible with Kodi 18 API
                     else:
                         play_item.setProperty('inputstream', 'inputstream.adaptive')  # compatible with recent builds Kodi 19 API
+                        try:
+                            play_item.setProperty('inputstream.adaptive.stream_headers', direct_url.split("|")[1])
+                            play_item.setProperty('inputstream.adaptive.manifest_headers', direct_url.split("|")[1])
+                        except:
+                            pass
                     play_item.setProperty('inputstream.adaptive.manifest_type', 'hls')
             elif subtitled == '1' and self.downloadsubtitles:
                 errMsg = ""
