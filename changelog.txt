@@ -1,4 +1,6 @@
 ﻿[B]1.0.30[/B]
+- m3u8 Leia fix
+[B]1.0.30[/B]
 - Omega kompatibilitás
 [B]1.0.29[/B]
 - Bejelentkezés változás követése
