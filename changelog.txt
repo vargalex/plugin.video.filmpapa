@@ -1,4 +1,6 @@
-﻿[B]1.0.33[/B]
+﻿[B]1.0.34[/B]
+- BugFix
+[B]1.0.33[/B]
 - Bejelentkezés kapcsolható
 [B]1.0.32[/B]
 - Forrás változás követése

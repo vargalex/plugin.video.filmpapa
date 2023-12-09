@@ -288,7 +288,7 @@ class navigator:
                 if not link.startswith("http"):
                     link = "%s:%s" % (urlparse.urlparse(url).scheme, link)
                 host = urlparse.urlparse(link).netloc
-                self.addDirectoryItem('Lejátszó 1 - [COLOR red]%s[/COLOR]' % (host), 'playmovie&url=%s' % quote_plus(link), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
+                self.addDirectoryItem(u'Lejátszó 1 - [COLOR red]%s[/COLOR]' % (host), 'playmovie&url=%s' % quote_plus(link), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
             except:
                 pass
         self.endDirectory('episodes')
