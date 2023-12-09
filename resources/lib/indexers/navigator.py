@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 import os,sys,re,xbmc,xbmcgui,xbmcplugin,xbmcaddon, time, locale, json
-import resolveurl as urlresolver
+import resolveurl
 from resources.lib.modules import client, control
 from resources.lib.modules.utils import py2_encode, py2_decode, safeopen
 from datetime import date
@@ -33,9 +33,9 @@ else:
 sysaddon = sys.argv[0] ; syshandle = int(sys.argv[1])
 addonFanart = control.addonInfo('fanart')
 
-base_url = 'https://filmadatbazis.site/filmpapa/'
+base_url = 'https://filmpapa.filmadatbazis.site/'
 series_url = 'series-category/sorozat-online/'
-years_url = 'release/%d/'
+years_url = 'release-year/%d/'
 start_year = 1938
 admin_url = 'wp-admin/admin-ajax.php'
 notmember_url = 'ugy-tunik-meg-nem-filmpapa-tag'
@@ -74,8 +74,7 @@ class navigator:
         self.addDirectoryItem('Legújabb filmek és sorozatok', 'items&page=1', '', 'DefaultFolder.png')
         self.addDirectoryItem('Premier filmek', 'sorts&url=category/kiemelt/', '', 'DefaultFolder.png')
         self.addDirectoryItem('Sorozatok', 'sorts&url=category/sorozatok/', '', 'DefaultFolder.png')
-        self.addDirectoryItem('Kollekciók', 'sorts&url=category/online-hd-film-sorozat/', '', 'DefaultFolder.png')
-        self.addDirectoryItem('Műfajok', 'categories', '', 'DefaultFolder.png')
+        self.addDirectoryItem('Kategóriák', 'categories', '', 'DefaultFolder.png')
         self.addDirectoryItem('Megjelenés éve szerint', 'years', '', 'DefaultFolder.png')
         if self.loggedin == "true":
             self.addDirectoryItem('Megnézendő', 'watchlist&url=my-watchlist', '', 'DefaultFolder.png')
@@ -116,47 +115,57 @@ class navigator:
             url_content = client.request("%s%spage/%s/?sort=%s%s" % (base_url, url, page, sort, searchparam))
         try:
             listItems = client.parseDOM(url_content, 'div', attrs={'class': '[^\'"]*list_items.*?'})[0]
-            items = client.parseDOM(listItems, 'div', attrs={'class': 'movie-preview-content'})
+            items = client.parseDOM(listItems, 'div', attrs={'class': 'movie-box'})
             for item in items:
-                dataID = client.parseDOM(item, 'span', attrs={'data-this': 'later'}, ret="data-id")[0]
-                details = client.parseDOM(item, 'div', attrs={'class': 'movie-details'})[0]
-                span = client.parseDOM(details, 'span', attrs={'class': 'movie-title'})[0]
-                title = client.replaceHTMLCodes(client.parseDOM(span, 'a', ret='title')[0])
+                try:
+                    dataID = client.parseDOM(item, 'span', attrs={'data-this': 'later'}, ret="data-id")[0]
+                except:
+                    dataID = None
+                details = client.parseDOM(item, 'div', attrs={'class': 'movie-details.*?'})[0]
+                name = client.parseDOM(details, 'div', attrs={'class': 'name'})[0]
+                title = client.replaceHTMLCodes(client.parseDOM(name, 'a', ret='title')[0])   
                 try:
                     title = "%s - [COLOR green]%s[/COLOR]" % (client.parseDOM(item, 'span', attrs={'class': 'serietitle'})[0], client.parseDOM(item, 'span', attrs={'class': 'episodetitle'})[0].replace(' <b>', ', ').replace('</b>', ''))
                 except:
                     pass
-                newurl = client.parseDOM(span, 'a', ret='href')[0]
+                try:
+                    bilgi = " - [COLOR green]%s[/COLOR] " % client.parseDOM(item, 'span', attrs={'class': 'bilgi-icon'})[0]
+                except:
+                    bilgi = ""
+                newurl = client.parseDOM(name, 'a', ret='href')[0]
                 felirat = 0
                 if self.infoPreload:
                     if self.loggedin == "true":
                         detail_content = self.requestWithLoginCookie(newurl)
                     else:
                         detail_content = client.request(newurl)
-                    info_left = client.parseDOM(detail_content, 'div', attrs={'class': 'info-left'})[0]
-                    info_right = client.parseDOM(detail_content, 'div', attrs={'class': 'info-right'})[0]
-                    poster = client.parseDOM(info_left, 'div', attrs={'class': 'poster'})[0]
+                    movie_left = client.parseDOM(detail_content, 'div', attrs={'class': 'movie-left'})[0]
+                    movies_data = client.parseDOM(detail_content, 'div', attrs={'class': 'movies-data'})[0]
+                    title = client.parseDOM(movies_data, 'div', attrs={'class': 'film'})[0]
+                    title = client.parseDOM(title, 'h1')[0]
+                    title = client.parseDOM(title, 'span')[0].strip()
+                    poster = client.parseDOM(movie_left, 'div', attrs={'class': 'poster'})[0]
                     thumb = client.parseDOM(poster, 'img', ret='src')[0]
                     try:
-                        release = client.parseDOM(info_right, 'div', attrs={'class': 'release'})[0]
-                        year = client.parseDOM(release, 'a')[0]
+                        release = client.parseDOM(movies_data, 'li', attrs={'class': 'release'})[0]
+                        try:
+                            year = client.parseDOM(release, 'a')[0]
+                        except:
+                            year = client.parseDOM(release, 'span')[0]
                     except:
-                        year = "ismeretlen"
+                        year = ""
                     try:
-                        time = client.parseDOM(movieData, 'li', attrs={'class': 'time'})[0]
+                        time = client.parseDOM(movies_data, 'li', attrs={'class': 'time'})[0]
                         time = client.parseDOM(time, 'span')[0].replace('min', '').strip()
-                        time = int(time)
                     except:
                         time = 0
                     try:
-                        plot = client.replaceHTMLCodes(client.parseDOM(info_right, 'div', attrs={'class': 'excerpt'})[0])
+                        plot = client.replaceHTMLCodes(client.parseDOM(movies_data, 'div', attrs={'class': 'description'})[0])
                     except:
                         plot = ""
                     try:
-                        fullimdb = client.parseDOM(detail_content, 'span', attrs={'class': 'imdb-rating'})[0]
-                        imdb = re.search(r"([^<]*)(<|$)", fullimdb).group(1).strip()
-                        if "felirat" in fullimdb.lower():
-                            felirat = 1
+                        imdb = client.parseDOM(movies_data, 'div', attrs={'class': 'imdb-count'})[0]
+                        imdb = re.search(r"([^<]*)(<|$)", imdb).group(1).strip()
                     except:
                         imdb = None
                 else:
@@ -164,24 +173,27 @@ class navigator:
                         plot = client.replaceHTMLCodes(client.parseDOM(details, 'p', attrs={'class': 'story'})[0])
                     except:
                         plot = ""
-                    poster = client.parseDOM(item, 'div', attrs={'class': 'movie-poster'})[0]
+                    poster = client.parseDOM(item, 'div', attrs={'class': 'img'})[0]
                     thumb = client.parseDOM(poster, 'img', ret='src')[0]
                     time = 0
                     year = ""
                     try:
-                        release = client.parseDOM(details, 'span', attrs={'class': 'movie-release'})[0]
-                        year = re.search(r"([^<]*)(<|$)", release).group(1).strip()
+                        release = client.parseDOM(details, 'div', attrs={'class': 'category'})[0]
+                        year = release.strip()
                     except:
                         pass
                     imdb = None
                     try:
-                        imdb = client.parseDOM(release, 'span', attrs={'title': 'IMDB'})[0]
+                        rating = client.parseDOM(item, 'div', attrs={'class': 'rating'})[0]
+                        imdb = client.parseDOM(rating, 'span')[0]
                         if "felirat" in imdb.lower():
                             felirat = 1
                     except:
                         pass
-                context = [["Hozzáadás/törlés a megnézendő listához/ból", "adddeletelist&listtype=later&dataid=%s" % dataID], ["Hozzáadás/törlés a FilmPapa kedvencekhez/ből", "adddeletelist&listtype=fav&dataid=%s" % dataID]]
-                self.addDirectoryItem('%s%s%s%s' % (title, "" if len(year) == 0 else " ([COLOR red]%s[/COLOR])" % year, "" if imdb == None else " | [COLOR yellow]IMDB: %s[/COLOR]" % imdb, "" if felirat == 0 else " | [COLOR lime]Feliratos[/COLOR]"), 'episodes&url=%s' % (quote_plus(newurl)), thumb, 'DefaultMovies.png', isFolder=True, meta={'title': title, 'plot': plot, 'duration': time*60}, banner=thumb, context=context)
+                context = None
+                if dataID:
+                    context = [["Hozzáadás/törlés a megnézendő listához/ból", "adddeletelist&listtype=later&dataid=%s" % dataID], ["Hozzáadás/törlés a FilmPapa kedvencekhez/ből", "adddeletelist&listtype=fav&dataid=%s" % dataID]]
+                self.addDirectoryItem('%s%s%s%s%s' % (title, bilgi, "" if len(year) == 0 else " ([COLOR red]%s[/COLOR])" % year, "" if imdb == None else " | [COLOR yellow]IMDB: %s[/COLOR]" % imdb, "" if felirat == 0 else " | [COLOR lime]Feliratos[/COLOR]"), 'episodes&url=%s' % (quote_plus(newurl)), thumb, 'DefaultMovies.png', isFolder=True, meta={'title': title, 'plot': plot, 'duration': time*60}, banner=thumb, context=context)
             try:
                 navicenter = client.parseDOM(url_content, 'div', attrs={'class': 'navicenter'})[0]
                 last = client.parseDOM(navicenter, 'a')[-1]
@@ -231,46 +243,54 @@ class navigator:
             url_content = self.requestWithLoginCookie(url)
         else:
             url_content = client.request(url)
-        info_left = client.parseDOM(url_content, 'div', attrs={'class': 'info-left'})[0]
-        info_right = client.parseDOM(url_content, 'div', attrs={'class': 'info-right'})[0]
-        title = client.parseDOM(info_right, 'div', attrs={'class': 'title'})[0]
+        movie_left = client.parseDOM(url_content, 'div', attrs={'class': 'movie-left'})[0]
+        movies_data = client.parseDOM(url_content, 'div', attrs={'class': 'movies-data'})[0]
+        title = client.parseDOM(movies_data, 'div', attrs={'class': 'film'})[0]
         title = client.parseDOM(title, 'h1')[0]
-        poster = client.parseDOM(info_left, 'div', attrs={'class': 'poster'})[0]
+        title = client.parseDOM(title, 'span')[0]
+        poster = client.parseDOM(movie_left, 'div', attrs={'class': 'poster'})[0]
         thumb = client.parseDOM(poster, 'img', ret='src')[0]
         try:
-            release = client.parseDOM(info_right, 'div', attrs={'class': 'release'})[0]
-            year = client.parseDOM(release, 'a')[0]
+            release = client.parseDOM(movies_data, 'li', attrs={'class': 'release'})[0]
+            try:
+                year = client.parseDOM(release, 'a')[0]
+            except:
+                year = client.parseDOM(release, 'span')[0]
         except:
             year = None
         try:
-            time = client.parseDOM(info_right, 'li', attrs={'class': 'time'})[0]
+            time = client.parseDOM(movies_data, 'li', attrs={'class': 'time'})[0]
             time = client.parseDOM(time, 'span')[0].replace('min', '').strip()
         except:
             time = 0
         try:
-            plot = client.replaceHTMLCodes(client.parseDOM(info_right, 'div', attrs={'class': 'excerpt'})[0])
+            plot = client.replaceHTMLCodes(client.parseDOM(movies_data, 'div', attrs={'class': 'description'})[0])
         except:
             plot = ""
         try:
-            imdb = client.parseDOM(detail_content, 'span', attrs={'class': 'imdb-rating'})[0]
+            imdb = client.parseDOM(movies_data, 'div', attrs={'class': 'imdb-count'})[0]
             imdb = re.search(r"([^<]*)(<|$)", imdb).group(1).strip()
         except:
             imdb = None
-        parts_middle = client.parseDOM(url_content, 'div', attrs={'class': 'parts-middle'})[0]
-        part_names = client.parseDOM(parts_middle, 'div', attrs={'class': 'part-name'})
-        part_langs = client.parseDOM(parts_middle, 'div', attrs={'class': 'part-lang'})
-        part_quality = client.parseDOM(parts_middle, 'div', attrs={'class': 'part-quality'})
-        links = client.parseDOM(parts_middle, 'a', ret = 'href')
-        if len(links)>0:
-            for idx in range(len(part_names)):
-                link = url if idx == 0 else links[idx-1]
-                lang = client.parseDOM(part_langs[idx], 'span')[0] if "span" in part_langs[idx] else part_langs[idx]
-                quality = client.parseDOM(part_quality[idx], 'span')[0] if "span" in part_quality[idx] else part_quality[idx]
-                lang = "" if lang == "-" else " - [COLOR green]%s[/COLOR]" % lang.strip()
-                quality = "" if quality == "-" else " - [COLOR blue]%s[/COLOR]" % quality.strip()
-                self.addDirectoryItem("%s%s%s" % (part_names[idx], lang, quality), 'playmovie&url=%s' % quote_plus(link), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
+        postTabs = client.parseDOM(url_content, 'div', attrs={'class': 'postTabs_divs.*?'})
+        if len(postTabs) > 0:
+            for postTab in postTabs:
+                span = client.parseDOM(postTab, 'span')[0]
+                name = span.replace('<b>', '').replace('</b>', '').strip()
+                link = client.parseDOM(postTab, 'iframe', ret='src')[0]
+                if not link.startswith("http"):
+                    link = "%s:%s" % (urlparse.urlparse(url).scheme, link)
+                host = urlparse.urlparse(link).netloc
+                self.addDirectoryItem('%s - [COLOR red]%s[/COLOR]' % (name, host), 'playmovie&url=%s' % quote_plus(link), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
         else:
-            self.addDirectoryItem("%s" % title, 'playmovie&url=%s' % quote_plus(url), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
+            try:
+                link = client.parseDOM(url_content, 'iframe', ret='src')[0]
+                if not link.startswith("http"):
+                    link = "%s:%s" % (urlparse.urlparse(url).scheme, link)
+                host = urlparse.urlparse(link).netloc
+                self.addDirectoryItem('Lejátszó 1 - [COLOR red]%s[/COLOR]' % (host), 'playmovie&url=%s' % quote_plus(link), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
+            except:
+                pass
         self.endDirectory('episodes')
 
     def getSearches(self):
@@ -309,21 +329,8 @@ class navigator:
 
 
     def playMovie(self, url, subtitled):
-        if self.loggedin == "true":
-            url_content = self.requestWithLoginCookie(url)
-        else:
-            url_content = client.request(url)
-        try:
-            src = client.parseDOM(url_content, 'iframe', ret='src')[0]
-        except:
-            try:
-                src = client.parseDOM(url_content, 'IFRAME', ret='SRC')[0]
-            except:
-                src = client.parseDOM(url_content, 'source', ret='src')[0]
-        if "http" not in src:
-            src = ("https:%s" % src)
-        if 'feltotesek.xyz' in src:
-            videoID = src.split("/v/")[1]
+        if 'feltotesek.xyz' in url:
+            videoID = url.split("/v/")[1]
             xbmc.log('FilmPapa: downloading feltotesek json. URL: https://feltotesek.xyz/api/source/%s' % videoID, xbmc.LOGINFO)
             url_content = client.request("https://feltotesek.xyz/api/source/%s" % videoID, post=b"")
             try:
@@ -338,18 +345,18 @@ class navigator:
 
         direct_url = None
         pattern = r'(.*?://|\.)((?:filemoon|cinegrab|moonmov)\.(?:sx|to|in|link|nl|wf|com|eu|art|pro))/(?:e|d)/([0-9a-zA-Z]+)'
-        match = re.search(pattern, src)
+        match = re.search(pattern, url)
         if match:
-            src = match.group(0)
-        if "filemoon" in src or "streamwish" in src:
-            src = "%s$$%s" % (src, base_url)
+            url = match.group(0)
+        if "filemoon" in url or "streamwish" in url:
+            url = "%s$$%s" % (url, base_url)
         try:
-            xbmc.log('FilmPapa: resolving URL %s with ResolveURL' % src, xbmc.LOGINFO)
-            direct_url = urlresolver.resolve(src)
+            xbmc.log('FilmPapa: resolving URL %s with ResolveURL' % url, xbmc.LOGINFO)
+            direct_url = resolveurl.resolve(url)
             if direct_url:
                 direct_url = py2_encode(direct_url)
             else:
-                direct_url = src
+                direct_url = url
         except Exception as e:
             xbmcgui.Dialog().notification(urlparse.urlparse(url).hostname, str(e))
             return
@@ -383,8 +390,8 @@ class navigator:
                     if ("mxdcontent" in direct_url or "mxcontent" in direct_url):
                         errMsg = "Hiba a sorozat felirat letöltésekor!"
                         parsed_uri = urlparse.urlparse(direct_url)
-                        parsed_uri2 = urlparse.urlparse(src)
-                        subtitle = client.request("%s://%s/subs/%s_en.vtt" % (parsed_uri.scheme, parsed_uri.netloc, src.split("/")[-1]))
+                        parsed_uri2 = urlparse.urlparse(url)
+                        subtitle = client.request("%s://%s/subs/%s_en.vtt" % (parsed_uri.scheme, parsed_uri.netloc, url.split("/")[-1]))
                         if len(subtitle) > 0:
                             errMsg = "Hiba a sorozat felirat file kiírásakor!"
                             file = safeopen("%s/subtitles/hu.srt" % self.base_path, "w")
@@ -397,7 +404,7 @@ class navigator:
                         play_item.setSubtitles(finalsubtitles)
                 except:
                     xbmcgui.Dialog().notification("FilmPapa hiba", errMsg, xbmcgui.NOTIFICATION_ERROR)
-                    xbmc.log("Hiba a %s URL-hez tartozó felirat letöltésekor, hiba: %s" % (py2_encode(src), py2_encode(errMsg)), xbmc.LOGERROR)
+                    xbmc.log("Hiba a %s URL-hez tartozó felirat letöltésekor, hiba: %s" % (py2_encode(url), py2_encode(errMsg)), xbmc.LOGERROR)
             xbmcplugin.setResolvedUrl(syshandle, True, listitem=play_item)
 
     def addDirectoryItem(self, name, query, thumb, icon, context=None, queue=False, isAction=True, isFolder=True, Fanart=None, meta=None, banner=None):
