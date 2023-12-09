@@ -61,7 +61,7 @@ class navigator:
             self.downloadsubtitles = xbmcaddon.Addon().getSetting('downloadsubtitles').lower() == 'true'
         self.base_path = py2_decode(control.dataPath)
         self.searchFileName = os.path.join(self.base_path, "search.history")
-        if (control.setting('username') and control.setting('password')):
+        if (control.setting('username') and control.setting('password') and xbmcaddon.Addon().getSettingBool('dologin')):
             self.loggedin = control.setting('loggedin')
             self.logincookiename = control.setting('logincookiename')
             self.logincookievalue = control.setting('logincookievalue')
@@ -488,11 +488,14 @@ class navigator:
             self.loggedin = 'false'
             xbmc.log('FilmPapa: Not logged in page received. Cookie expired?', xbmc.LOGINFO)
             self.login()
-            cookie = "%s=%s" % (self.logincookiename, self.logincookievalue)
-            url_content = client.request(url, cookie=cookie, post=post)
-            if not post:
-                self.nonce = json.loads(re.search(r'{"ajax_url":[^}]*}', url_content).group(0))["nonce"]
-                control.setSetting('nonce', self.nonce)
+            try:
+                cookie = "%s=%s" % (self.logincookiename, self.logincookievalue)
+                url_content = client.request(url, cookie=cookie, post=post)
+                if not post:
+                    self.nonce = json.loads(re.search(r'{"ajax_url":[^}]*}', url_content).group(0))["nonce"]
+                    control.setSetting('nonce', self.nonce)
+            except:
+                pass
         return url_content
 
     def addDeleteList(self, option, dataid):

@@ -5,8 +5,9 @@
         <setting label="Felirat letöltésének kísérlete" type="bool" id="downloadsubtitles" default="True"/>
 	</category>
     <category label="Bejelentkezés">
-        <setting label="Felhasználónév" type="text" id="username" default=""/>
-        <setting label="Jelszó" type="text" id="password" option="hidden" default=""/>
+        <setting label="Engedélyezve" type="bool" id="dologin" default="False"/>
+        <setting label="Felhasználónév" type="text" id="username" default="" visible="eq(-1,true)"/>
+        <setting label="Jelszó" type="text" id="password" option="hidden" default="" visible="eq(-2,true)"/>
         <setting id="logincookiename" visible="false" default=""/>
         <setting id="logincookievalue" visible="false" default=""/>
         <setting id="nonce" visible="false" default=""/>
