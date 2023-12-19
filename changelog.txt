@@ -1,4 +1,6 @@
-﻿[B]1.0.37[/B]
+﻿[B]1.0.28[/B]
+- BugFix
+[B]1.0.37[/B]
 - Base URL változás detektálása (óránként), változás esetén mentése a beállításokba
 [B]1.0.36[/B]
 - Base URL módosítása, kivezetése a konfigurációba
