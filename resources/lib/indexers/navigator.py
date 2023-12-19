@@ -34,6 +34,14 @@ sysaddon = sys.argv[0] ; syshandle = int(sys.argv[1])
 addonFanart = control.addonInfo('fanart')
 
 base_url = control.setting("filmpapa_base")
+if int(time.time()) > int(control.setting("filmpapa_base_lastcheck")) + 60*60:
+    xbmc.log('FilmPapa: last check for FilmPapa base is too old. Checking base URL.', xbmc.LOGINFO)
+    response = client.request(base_url, output='geturl')
+    if response != base_url:
+        xbmc.log('FilmPapa: base url changed from %s to %s ' % (base_url, response), xbmc.LOGINFO)
+        base_url = response
+        control.setSetting("filmpapa_base", base_url)
+        control.setSetting("filmpapa_base_lastcheck", str(int(time.time())))
 years_url = 'release/%d/'
 start_year = 1938
 admin_url = 'wp-admin/admin-ajax.php'

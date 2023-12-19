@@ -2,6 +2,7 @@
 <settings>
     <category label="Beállítások">
         <setting label="Weboldal címe" type="text" id="filmpapa_base" default="https://letoltes.club/filmpapa/"/>
+        <setting type="text" id="filmpapa_base_lastcheck" visible="false" default="0"/>
         <setting label="Részletes információ előtöltése" type="bool" id="infopreload" default="False"/>
         <setting label="Felirat letöltésének kísérlete" type="bool" id="downloadsubtitles" default="True"/>
 	</category>

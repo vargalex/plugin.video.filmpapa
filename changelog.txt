@@ -1,4 +1,6 @@
-﻿[B]1.0.36[/B]
+﻿[B]1.0.37[/B]
+- Base URL változás detektálása (óránként), változás esetén mentése a beállításokba
+[B]1.0.36[/B]
 - Base URL módosítása, kivezetése a konfigurációba
 [B]1.0.35[/B]
 - Visszaállás az 1.0.31-es verzióra (régi forrás)
