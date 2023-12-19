@@ -33,8 +33,7 @@ else:
 sysaddon = sys.argv[0] ; syshandle = int(sys.argv[1])
 addonFanart = control.addonInfo('fanart')
 
-base_url = 'https://filmadatbazis.site/filmpapa/'
-series_url = 'series-category/sorozat-online/'
+base_url = control.setting("filmpapa_base")
 years_url = 'release/%d/'
 start_year = 1938
 admin_url = 'wp-admin/admin-ajax.php'

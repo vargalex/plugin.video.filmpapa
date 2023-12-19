@@ -1,4 +1,6 @@
-﻿[B]1.0.35[/B]
+﻿[B]1.0.36[/B]
+- Base URL módosítása, kivezetése a konfigurációba
+[B]1.0.35[/B]
 - Visszaállás az 1.0.31-es verzióra (régi forrás)
 [B]1.0.31[/B]
 - m3u8 Leia fix
