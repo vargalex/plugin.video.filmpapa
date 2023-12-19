@@ -41,7 +41,9 @@ if int(time.time()) > int(control.setting("filmpapa_base_lastcheck")) + 60*60:
         xbmc.log('FilmPapa: base url changed from %s to %s ' % (base_url, response), xbmc.LOGINFO)
         base_url = response
         control.setSetting("filmpapa_base", base_url)
-        control.setSetting("filmpapa_base_lastcheck", str(int(time.time())))
+    else:
+        xbmc.log('FilmPapa: base url not changed from %s' % base_url, xbmc.LOGINFO)
+    control.setSetting("filmpapa_base_lastcheck", str(int(time.time())))
 years_url = 'release/%d/'
 start_year = 1938
 admin_url = 'wp-admin/admin-ajax.php'
