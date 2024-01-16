@@ -124,10 +124,12 @@ class navigator:
         else:
             url_content = client.request("%s%spage/%s/?sort=%s%s" % (base_url, url, page, sort, searchparam))
         try:
-            listItems = client.parseDOM(url_content, 'div', attrs={'class': '[^\'"]*list_items.*?'})[0]
-            items = client.parseDOM(listItems, 'div', attrs={'class': 'movie-preview-content'})
+            items = client.parseDOM(url_content, 'div', attrs={'class': 'movie-preview-content'})
             for item in items:
-                dataID = client.parseDOM(item, 'span', attrs={'data-this': 'later'}, ret="data-id")[0]
+                try:
+                    dataID = client.parseDOM(item, 'span', attrs={'data-this': 'later'}, ret="data-id")[0]
+                except:
+                    dataID = None
                 details = client.parseDOM(item, 'div', attrs={'class': 'movie-details'})[0]
                 span = client.parseDOM(details, 'span', attrs={'class': 'movie-title'})[0]
                 title = client.replaceHTMLCodes(client.parseDOM(span, 'a', ret='title')[0])
@@ -135,6 +137,10 @@ class navigator:
                     title = "%s - [COLOR green]%s[/COLOR]" % (client.parseDOM(item, 'span', attrs={'class': 'serietitle'})[0], client.parseDOM(item, 'span', attrs={'class': 'episodetitle'})[0].replace(' <b>', ', ').replace('</b>', ''))
                 except:
                     pass
+                try:
+                    bilgi = " - [COLOR green]%s[/COLOR] " % client.parseDOM(item, 'span', attrs={'class': 'bilgi-icon'})[0]
+                except:
+                    bilgi = ""
                 newurl = client.parseDOM(span, 'a', ret='href')[0]
                 felirat = 0
                 if self.infoPreload:
@@ -144,17 +150,18 @@ class navigator:
                         detail_content = client.request(newurl)
                     info_left = client.parseDOM(detail_content, 'div', attrs={'class': 'info-left'})[0]
                     info_right = client.parseDOM(detail_content, 'div', attrs={'class': 'info-right'})[0]
+                    title = client.parseDOM(info_right, 'div', attrs={'class': 'title'})[0]
+                    title = client.replaceHTMLCodes(client.parseDOM(title, 'h1')[0])
                     poster = client.parseDOM(info_left, 'div', attrs={'class': 'poster'})[0]
                     thumb = client.parseDOM(poster, 'img', ret='src')[0]
                     try:
                         release = client.parseDOM(info_right, 'div', attrs={'class': 'release'})[0]
                         year = client.parseDOM(release, 'a')[0]
                     except:
-                        year = "ismeretlen"
+                        year = ""
                     try:
-                        time = client.parseDOM(movieData, 'li', attrs={'class': 'time'})[0]
+                        time = client.parseDOM(info_right, 'li', attrs={'class': 'time'})[0]
                         time = client.parseDOM(time, 'span')[0].replace('min', '').strip()
-                        time = int(time)
                     except:
                         time = 0
                     try:
@@ -162,10 +169,8 @@ class navigator:
                     except:
                         plot = ""
                     try:
-                        fullimdb = client.parseDOM(detail_content, 'span', attrs={'class': 'imdb-rating'})[0]
-                        imdb = re.search(r"([^<]*)(<|$)", fullimdb).group(1).strip()
-                        if "felirat" in fullimdb.lower():
-                            felirat = 1
+                        imdb = client.parseDOM(detail_content, 'span', attrs={'class': 'icon-star'})[0]
+                        imdb = client.parseDOM(imdb, 'span', attrs={'class': 'average'})[0]
                     except:
                         imdb = None
                 else:
@@ -190,7 +195,7 @@ class navigator:
                     except:
                         pass
                 context = [["Hozzáadás/törlés a megnézendő listához/ból", "adddeletelist&listtype=later&dataid=%s" % dataID], ["Hozzáadás/törlés a FilmPapa kedvencekhez/ből", "adddeletelist&listtype=fav&dataid=%s" % dataID]]
-                self.addDirectoryItem('%s%s%s%s' % (title, "" if len(year) == 0 else " ([COLOR red]%s[/COLOR])" % year, "" if imdb == None else " | [COLOR yellow]IMDB: %s[/COLOR]" % imdb, "" if felirat == 0 else " | [COLOR lime]Feliratos[/COLOR]"), 'episodes&url=%s' % (quote_plus(newurl)), thumb, 'DefaultMovies.png', isFolder=True, meta={'title': title, 'plot': plot, 'duration': time*60}, banner=thumb, context=context)
+                self.addDirectoryItem('%s%s%s%s%s' % (title, bilgi, "" if len(year) == 0 else " ([COLOR red]%s[/COLOR])" % year, "" if imdb == None else " | [COLOR yellow]IMDB: %s[/COLOR]" % imdb, "" if felirat == 0 else " | [COLOR lime]Feliratos[/COLOR]"), 'episodes&url=%s' % (quote_plus(newurl)), thumb, 'DefaultMovies.png', isFolder=True, meta={'title': title, 'plot': plot, 'duration': time*60}, banner=thumb, context=context)
             try:
                 navicenter = client.parseDOM(url_content, 'div', attrs={'class': 'navicenter'})[0]
                 last = client.parseDOM(navicenter, 'a')[-1]
@@ -243,7 +248,7 @@ class navigator:
         info_left = client.parseDOM(url_content, 'div', attrs={'class': 'info-left'})[0]
         info_right = client.parseDOM(url_content, 'div', attrs={'class': 'info-right'})[0]
         title = client.parseDOM(info_right, 'div', attrs={'class': 'title'})[0]
-        title = client.parseDOM(title, 'h1')[0]
+        title = client.replaceHTMLCodes(client.parseDOM(title, 'h1')[0])
         poster = client.parseDOM(info_left, 'div', attrs={'class': 'poster'})[0]
         thumb = client.parseDOM(poster, 'img', ret='src')[0]
         try:
@@ -261,23 +266,21 @@ class navigator:
         except:
             plot = ""
         try:
-            imdb = client.parseDOM(detail_content, 'span', attrs={'class': 'imdb-rating'})[0]
-            imdb = re.search(r"([^<]*)(<|$)", imdb).group(1).strip()
+            imdb = client.parseDOM(url_content, 'span', attrs={'class': 'icon-star'})[0]
+            imdb = client.parseDOM(imdb, 'span', attrs={'class': 'average'})[0]
         except:
             imdb = None
-        parts_middle = client.parseDOM(url_content, 'div', attrs={'class': 'parts-middle'})[0]
-        part_names = client.parseDOM(parts_middle, 'div', attrs={'class': 'part-name'})
-        part_langs = client.parseDOM(parts_middle, 'div', attrs={'class': 'part-lang'})
-        part_quality = client.parseDOM(parts_middle, 'div', attrs={'class': 'part-quality'})
-        links = client.parseDOM(parts_middle, 'a', ret = 'href')
+        links = ()
+        try:
+            keremiya_part = client.parseDOM(url_content, 'div', attrs={'class': 'keremiya_part'})[0]
+            spans = client.parseDOM(keremiya_part, 'span')
+            links = client.parseDOM(keremiya_part, 'a', ret = 'href')
+        except:
+            pass
         if len(links)>0:
-            for idx in range(len(part_names)):
+            for idx in range(len(spans)):
                 link = url if idx == 0 else links[idx-1]
-                lang = client.parseDOM(part_langs[idx], 'span')[0] if "span" in part_langs[idx] else part_langs[idx]
-                quality = client.parseDOM(part_quality[idx], 'span')[0] if "span" in part_quality[idx] else part_quality[idx]
-                lang = "" if lang == "-" else " - [COLOR green]%s[/COLOR]" % lang.strip()
-                quality = "" if quality == "-" else " - [COLOR blue]%s[/COLOR]" % quality.strip()
-                self.addDirectoryItem("%s%s%s" % (part_names[idx], lang, quality), 'playmovie&url=%s' % quote_plus(link), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
+                self.addDirectoryItem("%s" % (spans[idx]), 'playmovie&url=%s' % quote_plus(link), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
         else:
             self.addDirectoryItem("%s" % title, 'playmovie&url=%s' % quote_plus(url), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
         self.endDirectory('episodes')

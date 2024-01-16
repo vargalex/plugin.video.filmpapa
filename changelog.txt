@@ -1,4 +1,6 @@
-﻿[B]1.0.28[/B]
+﻿[B]1.0.39[/B]
+- Forrás változás követése
+[B]1.0.38[/B]
 - BugFix
 [B]1.0.37[/B]
 - Base URL változás detektálása (óránként), változás esetén mentése a beállításokba
