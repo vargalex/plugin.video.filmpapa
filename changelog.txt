@@ -1,4 +1,6 @@
-﻿[B]1.0.40[/B]
+﻿[B]1.0.41[/B]
+- Default URL módosítás
+[B]1.0.40[/B]
 - Forrás változás követése
 [B]1.0.39[/B]
 - Forrás változás követése
