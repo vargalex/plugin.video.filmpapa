@@ -162,7 +162,7 @@ class navigator:
                         release = client.parseDOM(info_right, 'div', attrs={'class': 'release'})[0]
                         year = client.parseDOM(release, 'a')[0]
                     except:
-                        year = None
+                        year = ""
                     try:
                         time = client.parseDOM(info_right, 'li', attrs={'class': 'time'})[0]
                         time = client.parseDOM(time, 'span')[0].replace('min', '').strip()
