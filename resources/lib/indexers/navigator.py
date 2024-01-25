@@ -364,7 +364,7 @@ class navigator:
         match = re.search(pattern, src)
         if match:
             src = match.group(0)
-        if "filemoon" in src or "streamwish" in src:
+        if "filemoon" in src or "streamwish" or "embedwish" in src:
             src = "%s$$%s" % (src, base_url)
         xbmc.log('FilmPapa: resolving URL %s with ResolveURL' % src, xbmc.LOGINFO)
         hmf = resolveurl.HostedMediaFile(src, subs=self.downloadsubtitles)
@@ -402,15 +402,16 @@ class navigator:
                             errMsg = "Hiba a korábbi feliratok törlésekor!"
                             os.remove("%s/subtitles/%s" % (self.base_path, f))
                         finalsubtitles=[]
-                        errMsg = "Hiba a sorozat felirat letöltésekor!"
+                        errMsg = "Hiba a felirat letöltésekor!"
                         for sub in subtitles:
                             subtitle = client.request(subtitles[sub])
+                            errMsg = "%s (%s)" % (errMsg, subtitles[sub])
                             if len(subtitle) > 0:
-                                errMsg = "Hiba a sorozat felirat file kiírásakor!"
+                                errMsg = "Hiba a felirat file kiírásakor!"
                                 file = safeopen(os.path.join(self.base_path, "subtitles", "%s.srt" % sub.strip()), "w")
                                 file.write(subtitle)
                                 file.close()
-                                errMsg = "Hiba a sorozat felirat file hozzáadásakor!"
+                                errMsg = "Hiba a felirat file hozzáadásakor!"
                                 finalsubtitles.append(os.path.join(self.base_path, "subtitles", "%s.srt" % sub.strip()))
                             else:
                                 xbmc.log("FilmPapa: Subtitles not found in source", xbmc.LOGINFO)
@@ -418,10 +419,10 @@ class navigator:
                             errMsg = "Hiba a feliratok beállításakor!"
                             play_item.setSubtitles(finalsubtitles)
                     except:
-                        xbmcgui.Dialog().notification("NetMozi hiba", errMsg, xbmcgui.NOTIFICATION_ERROR)
-                        xbmc.log("Hiba a %s URL-hez tartozó felirat letöltésekor, hiba: %s" % (py2_encode(final_url), py2_encode(errMsg)), xbmc.LOGERROR)
+                        xbmcgui.Dialog().notification("FilmPapa hiba", errMsg, xbmcgui.NOTIFICATION_ERROR)
+                        xbmc.log("Hiba a %s URL-hez tartozó felirat letöltésekor, hiba: %s" % (py2_encode(src), py2_encode(errMsg)), xbmc.LOGERROR)
                 else:
-                    xbmc.log("NetMozi: ResolveURL did not find any subtitles", xbmc.LOGINFO)
+                    xbmc.log("FilmPapa: ResolveURL did not find any subtitles", xbmc.LOGINFO)
             xbmc.log('FilmPapa: playing URL: %s' % direct_url, xbmc.LOGINFO)
             xbmcplugin.setResolvedUrl(syshandle, True, listitem=play_item)
         else:

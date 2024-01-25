@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.filmpapa" name="FilmPapa HD" version="1.0.42" provider-name="vargalex">
+<addon id="plugin.video.filmpapa" name="FilmPapa HD" version="1.0.43" provider-name="vargalex">
 	<requires>
 		<import addon="script.module.resolveurl" version="5.1.00"/>
 		<import addon="script.module.inputstreamhelper" version="0.4.3"/>
