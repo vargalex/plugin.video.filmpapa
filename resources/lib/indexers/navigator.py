@@ -364,14 +364,17 @@ class navigator:
         match = re.search(pattern, src)
         if match:
             src = match.group(0)
-        if "filemoon" in src or "streamwish" or "embedwish" in src:
+        if "filemoon" in src or "streamwish" in src or "embedwish" in src:
             src = "%s$$%s" % (src, base_url)
         xbmc.log('FilmPapa: resolving URL %s with ResolveURL' % src, xbmc.LOGINFO)
         hmf = resolveurl.HostedMediaFile(src, subs=self.downloadsubtitles)
         subtitles = None
         if hmf:
             resp = hmf.resolve()
-            direct_url = resp.get('url')
+            if self.downloadsubtitles:
+                direct_url = resp.get('url')
+            else:
+                direct_url = resp
             xbmc.log('FilmPapa: ResolveURL resolved URL: %s' % direct_url, xbmc.LOGINFO)
             direct_url = py2_encode(direct_url)
             if self.downloadsubtitles:

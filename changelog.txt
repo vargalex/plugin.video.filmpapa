@@ -1,4 +1,6 @@
-﻿[B]1.0.43[/B]
+﻿[B]1.0.44[/B]
+- ResolveURL feloldás bugfix
+[B]1.0.43[/B]
 - BugFix
 [B]1.0.42[/B]
 - BugFix
