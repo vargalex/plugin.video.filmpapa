@@ -1,4 +1,7 @@
-﻿[B]1.0.44[/B]
+﻿[B]1.0.45[/B]
+- Login javítás speciális karakterek esetén
+- Base URL bugfix
+[B]1.0.44[/B]
 - ResolveURL feloldás bugfix
 [B]1.0.43[/B]
 - BugFix

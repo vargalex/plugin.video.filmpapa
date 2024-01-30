@@ -34,9 +34,14 @@ sysaddon = sys.argv[0] ; syshandle = int(sys.argv[1])
 addonFanart = control.addonInfo('fanart')
 
 base_url = control.setting("filmpapa_base")
+if not base_url.endswith("/"):
+    xbmc.log('FilmPapa: base url (%s) not ends with / append to it.' % base_url, xbmc.LOGINFO)
+    base_url = "%s/" % base_url
+    control.setSetting("filmpapa_base", base_url)
 if int(time.time()) > int(control.setting("filmpapa_base_lastcheck")) + 60*60:
     xbmc.log('FilmPapa: last check for FilmPapa base is too old. Checking base URL.', xbmc.LOGINFO)
     response = client.request(base_url, output='geturl')
+    response = response if response.endswith("/") else "%s/" % response
     if response != base_url:
         xbmc.log('FilmPapa: base url changed from %s to %s ' % (base_url, response), xbmc.LOGINFO)
         base_url = response
@@ -485,7 +490,7 @@ class navigator:
             xbmc.log('FilmPapa: Trying to login.', xbmc.LOGINFO)
             content = client.request(base_url)
             nonce = client.parseDOM(content, "input", attrs={"name": "nonce"}, ret="value")[0]
-            data = "action=keremiya_user_action&form=%s" % quote_plus("login_username=%s&login_password=%s&keremiya_action=login&nonce=%s" % (xbmcaddon.Addon().getSetting("username"), xbmcaddon.Addon().getSetting("password"), nonce))
+            data = "action=keremiya_user_action&form=%s" % quote_plus("login_username=%s&login_password=%s&keremiya_action=login&nonce=%s" % (quote_plus(xbmcaddon.Addon().getSetting("username")), quote_plus(xbmcaddon.Addon().getSetting("password")), nonce))
             cookies = client.request("%s%s" % (base_url, admin_url), post=data, output="cookie")
             if cookies:
                 cookies = dict(i.split('=', 1) for i in cookies.split('; '))
