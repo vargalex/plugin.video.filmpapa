@@ -41,14 +41,17 @@ if not base_url.endswith("/"):
 if int(time.time()) > int(control.setting("filmpapa_base_lastcheck")) + 60*60:
     xbmc.log('FilmPapa: last check for FilmPapa base is too old. Checking base URL.', xbmc.LOGINFO)
     response = client.request(base_url, output='geturl')
-    response = response if response.endswith("/") else "%s/" % response
-    if response != base_url:
-        xbmc.log('FilmPapa: base url changed from %s to %s ' % (base_url, response), xbmc.LOGINFO)
-        base_url = response
-        control.setSetting("filmpapa_base", base_url)
+    if response and len(response)>0:
+        response = response if response.endswith("/") else "%s/" % response
+        if response != base_url:
+            xbmc.log('FilmPapa: base url changed from %s to %s ' % (base_url, response), xbmc.LOGINFO)
+            base_url = response
+            control.setSetting("filmpapa_base", base_url)
+        else:
+            xbmc.log('FilmPapa: base url not changed from %s' % base_url, xbmc.LOGINFO)
+        control.setSetting("filmpapa_base_lastcheck", str(int(time.time())))
     else:
-        xbmc.log('FilmPapa: base url not changed from %s' % base_url, xbmc.LOGINFO)
-    control.setSetting("filmpapa_base_lastcheck", str(int(time.time())))
+        xbmc.log('FilmPapa: base_url (%s) geturl returned empty URL')
 years_url = 'release/%d/'
 start_year = 1938
 admin_url = 'wp-admin/admin-ajax.php'
@@ -80,8 +83,7 @@ class navigator:
             self.logincookiename = control.setting('logincookiename')
             self.logincookievalue = control.setting('logincookievalue')
             self.nonce = control.setting('nonce')
-            self.requestWithLoginCookie(base_url)
-
+            self.login()
 
     def getRoot(self):
         url_content = client.request(base_url)

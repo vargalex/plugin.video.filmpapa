@@ -1,4 +1,6 @@
-﻿[B]1.0.45[/B]
+﻿[B]1.0.46[/B]
+- Optimalizálás
+[B]1.0.45[/B]
 - Login javítás speciális karakterek esetén
 - Base URL bugfix
 [B]1.0.44[/B]
