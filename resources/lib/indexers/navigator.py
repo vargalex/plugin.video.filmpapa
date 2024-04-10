@@ -23,6 +23,8 @@ from resources.lib.modules import client, control
 from resources.lib.modules.utils import py2_encode, py2_decode, safeopen
 from datetime import date
 
+default_base_url = "https://letoltes.org/"
+
 if sys.version_info[0] == 3:
     import urllib.parse as urlparse
     from urllib.parse import quote_plus
@@ -38,6 +40,11 @@ if not base_url.endswith("/"):
     xbmc.log('FilmPapa: base url (%s) not ends with / append to it.' % base_url, xbmc.LOGINFO)
     base_url = "%s/" % base_url
     control.setSetting("filmpapa_base", base_url)
+if control.setting('firstopen').lower() == "true":
+    if base_url != default_base_url:
+        control.setSetting("filmpapa_base", default_base_url)
+        base_url = default_base_url
+    control.setSetting('firstopen', 'false')
 if int(time.time()) > int(control.setting("filmpapa_base_lastcheck")) + 60*60:
     xbmc.log('FilmPapa: last check for FilmPapa base is too old. Checking base URL.', xbmc.LOGINFO)
     response = client.request(base_url, output='geturl')
@@ -78,12 +85,13 @@ class navigator:
             self.downloadsubtitles = xbmcaddon.Addon().getSetting('downloadsubtitles').lower() == 'true'
         self.base_path = py2_decode(control.dataPath)
         self.searchFileName = os.path.join(self.base_path, "search.history")
-        if (control.setting('username') and control.setting('password')):
+        """if (control.setting('username') and control.setting('password')):
             self.loggedin = control.setting('loggedin')
             self.logincookiename = control.setting('logincookiename')
             self.logincookievalue = control.setting('logincookievalue')
             self.nonce = control.setting('nonce')
             self.login()
+        """
 
     def getRoot(self):
         url_content = client.request(base_url)
@@ -94,8 +102,7 @@ class navigator:
             menuTitle = client.parseDOM(menuItem, 'a')[0].strip()
             menuURL = re.findall(r'category/.*', client.parseDOM(menuItem, 'a', ret='href')[0])[0]
             self.addDirectoryItem(menuTitle, 'sorts&url=%s' % menuURL, '', 'DefaultFolder.png')
-        self.addDirectoryItem('Kollekciók', 'sorts&url=category/online-hd-film-sorozat/', '', 'DefaultFolder.png')
-        self.addDirectoryItem('Műfajok', 'categories', '', 'DefaultFolder.png')
+        self.addDirectoryItem('Kategóriák', 'categories', '', 'DefaultFolder.png')
         self.addDirectoryItem('Megjelenés éve szerint', 'years', '', 'DefaultFolder.png')
         if self.loggedin == "true":
             self.addDirectoryItem('Megnézendő', 'watchlist&url=my-watchlist', '', 'DefaultFolder.png')
@@ -139,7 +146,7 @@ class navigator:
                     dataID = client.parseDOM(item, 'span', attrs={'data-this': 'later'}, ret="data-id")[0]
                 except:
                     dataID = None
-                details = client.parseDOM(item, 'div', attrs={'class': 'movie-details'})[0]
+                details = client.parseDOM(item, 'div', attrs={'class': 'movie-details.*?'})[0]
                 span = client.parseDOM(details, 'span', attrs={'class': 'movie-title'})[0]
                 title = client.replaceHTMLCodes(client.parseDOM(span, 'a', ret='title')[0])
                 try:
@@ -157,19 +164,17 @@ class navigator:
                         detail_content = self.requestWithLoginCookie(newurl)
                     else:
                         detail_content = client.request(newurl)
-
-                    info_left = client.parseDOM(detail_content, 'span', attrs={'class': 'info-left'})[0]
-                    info_right = client.parseDOM(detail_content, 'span', attrs={'class': 'info-right'})[0]
-                    title = client.parseDOM(info_right, 'span', attrs={'class': 'title'})[0]
-                    title = client.parseDOM(title, 'h1')[0]
-                    title = client.replaceHTMLCodes(client.parseDOM(title, 'span')[0].strip())
-                    poster = client.parseDOM(info_left, 'span', attrs={'class': 'poster'})[0]
+                    info_left = client.parseDOM(detail_content, 'div', attrs={'class': 'info-left'})[0]
+                    info_right = client.parseDOM(detail_content, 'div', attrs={'class': 'info-right'})[0]
+                    title = client.parseDOM(info_right, 'div', attrs={'class': 'title'})[0]
+                    title = client.replaceHTMLCodes(client.parseDOM(title, 'h1')[0].strip())
+                    poster = client.parseDOM(info_left, 'div', attrs={'class': 'poster'})[0]
                     thumb = client.parseDOM(poster, 'img', ret='src')[0]
                     try:
                         release = client.parseDOM(info_right, 'div', attrs={'class': 'release'})[0]
                         year = client.parseDOM(release, 'a')[0]
                     except:
-                        year = ""
+                        year = None
                     try:
                         time = client.parseDOM(info_right, 'li', attrs={'class': 'time'})[0]
                         time = client.parseDOM(time, 'span')[0].replace('min', '').strip()
@@ -257,12 +262,11 @@ class navigator:
             url_content = self.requestWithLoginCookie(url)
         else:
             url_content = client.request(url)
-        info_left = client.parseDOM(url_content, 'span', attrs={'class': 'info-left'})[0]
-        info_right = client.parseDOM(url_content, 'span', attrs={'class': 'info-right'})[0]
-        title = client.parseDOM(info_right, 'span', attrs={'class': 'title'})[0]
-        title = client.parseDOM(title, 'h1')[0]
-        title = client.replaceHTMLCodes(client.parseDOM(title, 'span')[0].strip())
-        poster = client.parseDOM(info_left, 'span', attrs={'class': 'poster'})[0]
+        info_left = client.parseDOM(url_content, 'div', attrs={'class': 'info-left'})[0]
+        info_right = client.parseDOM(url_content, 'div', attrs={'class': 'info-right'})[0]
+        title = client.parseDOM(info_right, 'div', attrs={'class': 'title'})[0]
+        title = client.replaceHTMLCodes(client.parseDOM(title, 'h1')[0].strip())
+        poster = client.parseDOM(info_left, 'div', attrs={'class': 'poster'})[0]
         thumb = client.parseDOM(poster, 'img', ret='src')[0]
         try:
             release = client.parseDOM(info_right, 'div', attrs={'class': 'release'})[0]
