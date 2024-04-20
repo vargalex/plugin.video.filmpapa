@@ -1,4 +1,6 @@
-﻿[B]1.0.47[/B]
+﻿[B]1.0.49[/B]
+- Forrás változás követése
+[B]1.0.47[/B]
 - Forrás változás követése
 [B]1.0.46[/B]
 - Optimalizálás

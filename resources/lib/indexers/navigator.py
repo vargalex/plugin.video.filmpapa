@@ -164,11 +164,11 @@ class navigator:
                         detail_content = self.requestWithLoginCookie(newurl)
                     else:
                         detail_content = client.request(newurl)
-                    info_left = client.parseDOM(detail_content, 'div', attrs={'class': 'info-left'})[0]
-                    info_right = client.parseDOM(detail_content, 'div', attrs={'class': 'info-right'})[0]
-                    title = client.parseDOM(info_right, 'div', attrs={'class': 'title'})[0]
-                    title = client.replaceHTMLCodes(client.parseDOM(title, 'h1')[0].strip())
-                    poster = client.parseDOM(info_left, 'div', attrs={'class': 'poster'})[0]
+                    info_left = client.parseDOM(detail_content, 'span', attrs={'class': 'info-left'})[0]
+                    info_right = client.parseDOM(detail_content, 'span', attrs={'class': 'info-right'})[0]
+                    title = client.parseDOM(info_right, 'span', attrs={'class': 'title'})[0]
+                    title = client.replaceHTMLCodes(client.parseDOM(title, 'span')[0].strip())
+                    poster = client.parseDOM(info_left, 'span', attrs={'class': 'poster'})[0]
                     thumb = client.parseDOM(poster, 'img', ret='src')[0]
                     try:
                         release = client.parseDOM(info_right, 'div', attrs={'class': 'release'})[0]
@@ -262,11 +262,11 @@ class navigator:
             url_content = self.requestWithLoginCookie(url)
         else:
             url_content = client.request(url)
-        info_left = client.parseDOM(url_content, 'div', attrs={'class': 'info-left'})[0]
-        info_right = client.parseDOM(url_content, 'div', attrs={'class': 'info-right'})[0]
-        title = client.parseDOM(info_right, 'div', attrs={'class': 'title'})[0]
-        title = client.replaceHTMLCodes(client.parseDOM(title, 'h1')[0].strip())
-        poster = client.parseDOM(info_left, 'div', attrs={'class': 'poster'})[0]
+        info_left = client.parseDOM(url_content, 'span', attrs={'class': 'info-left'})[0]
+        info_right = client.parseDOM(url_content, 'span', attrs={'class': 'info-right'})[0]
+        title = client.parseDOM(info_right, 'span', attrs={'class': 'title'})[0]
+        title = client.replaceHTMLCodes(client.parseDOM(title, 'span')[0].strip())
+        poster = client.parseDOM(info_left, 'span', attrs={'class': 'poster'})[0]
         thumb = client.parseDOM(poster, 'img', ret='src')[0]
         try:
             release = client.parseDOM(info_right, 'div', attrs={'class': 'release'})[0]
