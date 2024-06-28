@@ -50,6 +50,10 @@ if int(time.time()) > int(control.setting("filmpapa_base_lastcheck")) + 60*60:
     response = client.request(base_url, output='geturl')
     if response and len(response)>0:
         response = response if response.endswith("/") else "%s/" % response
+        try:
+            response = response.split("?")[1]
+        except:
+            pass
         if response != base_url:
             xbmc.log('FilmPapa: base url changed from %s to %s ' % (base_url, response), xbmc.LOGINFO)
             base_url = response
