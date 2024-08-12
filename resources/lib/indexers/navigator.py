@@ -326,7 +326,7 @@ class navigator:
         if match:
             linksURL = match.group(1)
             url_content = client.request(linksURL)
-            match=re.search(r'<a.*href="(.*?/links/.*?)"', url_content)
+            match=re.search(r'<a.*href="(.*?/links/(?!dirpy).*?)"', url_content)
             if match:
                 linksURL = match.group(1)
                 url_content = client.request(linksURL)
