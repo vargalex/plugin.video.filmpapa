@@ -326,11 +326,10 @@ class navigator:
         if match:
             linksURL = match.group(1)
             url_content = client.request(linksURL)
-            match=re.search(r'<a.*href="(.*?/links/(?!dirpy).*?)"', url_content)
-            if match:
-                linksURL = match.group(1)
-                url_content = client.request(linksURL)
-                links = ()
+            hrefs=re.findall(r'<a.*href="(.*?/links/(?!dirpy).*?)"', url_content)
+            for href in hrefs:
+                url_content = client.request(href)
+                links = []
                 try:
                     keremiya_part = client.parseDOM(url_content, 'div', attrs={'class': 'keremiya_part'})[0]
                     spans = client.parseDOM(keremiya_part, 'span')
@@ -339,10 +338,11 @@ class navigator:
                     pass
                 if len(links)>0:
                     for idx in range(len(spans)):
-                        link = linksURL if idx == 0 else links[idx-1]
+                        link = href if idx == 0 else links[idx-1]
                         self.addDirectoryItem("%s" % (spans[idx]), 'playmovie&url=%s' % quote_plus(link), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
                 else:
-                    self.addDirectoryItem("%s" % title, 'playmovie&url=%s' % quote_plus(linksURL), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
+                    if url_content and "nincs meg online" not in url_content:
+                        self.addDirectoryItem("%s" % title, 'playmovie&url=%s' % quote_plus(href), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
         self.endDirectory('episodes')
 
     def getSearches(self):

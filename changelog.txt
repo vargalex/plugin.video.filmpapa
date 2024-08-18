@@ -1,4 +1,6 @@
-﻿[B]1.0.54[/B]
+﻿[B]1.0.55[/B]
+- Hidden link kezelése
+[B]1.0.54[/B]
 - Dirpy letöltés link ignorálása
 [B]1.0.53[/B]
 - Forrás változás követése
