@@ -1,4 +1,6 @@
-﻿[B]1.0.55[/B]
+﻿[B]1.0.56[/B]
+- Azonos források szűrése
+[B]1.0.55[/B]
 - Hidden link kezelése
 [B]1.0.54[/B]
 - Dirpy letöltés link ignorálása

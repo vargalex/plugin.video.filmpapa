@@ -327,6 +327,7 @@ class navigator:
             linksURL = match.group(1)
             url_content = client.request(linksURL)
             hrefs=re.findall(r'<a.*href="(.*?/links/(?!dirpy).*?)"', url_content)
+            allLinks = []
             for href in hrefs:
                 url_content = client.request(href)
                 links = []
@@ -339,10 +340,14 @@ class navigator:
                 if len(links)>0:
                     for idx in range(len(spans)):
                         link = href if idx == 0 else links[idx-1]
-                        self.addDirectoryItem("%s" % (spans[idx]), 'playmovie&url=%s' % quote_plus(link), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
+                        if link not in allLinks:
+                            self.addDirectoryItem("%s" % (spans[idx]), 'playmovie&url=%s' % quote_plus(link), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
+                            allLinks.append(link)
                 else:
                     if url_content and "nincs meg online" not in url_content:
-                        self.addDirectoryItem("%s" % title, 'playmovie&url=%s' % quote_plus(href), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
+                        if href not in allLinks:
+                            self.addDirectoryItem("%s" % title, 'playmovie&url=%s' % quote_plus(href), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
+                            allLinks.append(href)
         self.endDirectory('episodes')
 
     def getSearches(self):
