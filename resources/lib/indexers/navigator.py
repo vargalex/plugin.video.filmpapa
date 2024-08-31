@@ -23,7 +23,7 @@ from resources.lib.modules import client, control
 from resources.lib.modules.utils import py2_encode, py2_decode, safeopen
 from datetime import date
 
-default_base_url = "https://letoltes.org/"
+default_base_url = "https://filmek.club/"
 
 if sys.version_info[0] == 3:
     import urllib.parse as urlparse
@@ -49,11 +49,10 @@ if int(time.time()) > int(control.setting("filmpapa_base_lastcheck")) + 60*60:
     xbmc.log('FilmPapa: last check for FilmPapa base is too old. Checking base URL.', xbmc.LOGINFO)
     response = client.request(base_url, output='geturl')
     if response and len(response)>0:
+        if "dereferer" in response:
+            content = client.request(response)
+            response = client.parseDOM(content, "a", ret="href")[0]
         response = response if response.endswith("/") else "%s/" % response
-        try:
-            response = response.split("?")[1]
-        except:
-            pass
         if response != base_url:
             xbmc.log('FilmPapa: base url changed from %s to %s ' % (base_url, response), xbmc.LOGINFO)
             base_url = response
