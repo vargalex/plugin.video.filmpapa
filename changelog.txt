@@ -1,4 +1,6 @@
 ﻿[B]1.0.57[/B]
+- Részletes információ előtöltés javítása
+[B]1.0.57[/B]
 - Default URL módosítása, dereferer URL kezelés módosítása
 [B]1.0.56[/B]
 - Azonos források szűrése
