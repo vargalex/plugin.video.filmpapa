@@ -1,4 +1,6 @@
-﻿[B]1.0.59[/B]
+﻿[B]1.0.60[/B]
+- Forrás változás: Részletek oldalon thumbnail nem mindig létezik
+[B]1.0.59[/B]
 - Év kinyerésének javítása
 [B]1.0.58[/B]
 - Részletes információ előtöltés javítása

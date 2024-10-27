@@ -162,6 +162,8 @@ class navigator:
                     bilgi = ""
                 newurl = client.parseDOM(span, 'a', ret='href')[0]
                 felirat = 0
+                poster = client.parseDOM(item, 'div', attrs={'class': 'movie-poster'})[0]
+                thumb = client.parseDOM(poster, 'img', ret='src')[0]
                 if self.infoPreload:
                     if self.loggedin == "true":
                         detail_content = self.requestWithLoginCookie(newurl)
@@ -187,7 +189,10 @@ class navigator:
                         poster = client.parseDOM(info_left, 'span', attrs={'class': 'poster'})[0]
                     except:
                         poster = client.parseDOM(info_left, 'div', attrs={'class': 'poster'})[0]
-                    thumb = client.parseDOM(poster, 'img', ret='src')[0]
+                    try:
+                        thumb = client.parseDOM(poster, 'img', ret='src')[0]
+                    except:
+                        pass
                     try:
                         release = client.parseDOM(info_right, 'div', attrs={'class': 'release'})[0]
                         year = client.parseDOM(release, 'a')[0]
@@ -213,8 +218,6 @@ class navigator:
                         plot = client.replaceHTMLCodes(client.parseDOM(details, 'p', attrs={'class': 'story'})[0])
                     except:
                         plot = ""
-                    poster = client.parseDOM(item, 'div', attrs={'class': 'movie-poster'})[0]
-                    thumb = client.parseDOM(poster, 'img', ret='src')[0]
                     time = 0
                     year = ""
                     try:
@@ -230,7 +233,7 @@ class navigator:
                     except:
                         pass
                 context = [["Hozzáadás/törlés a megnézendő listához/ból", "adddeletelist&listtype=later&dataid=%s" % dataID], ["Hozzáadás/törlés a FilmPapa kedvencekhez/ből", "adddeletelist&listtype=fav&dataid=%s" % dataID]]
-                self.addDirectoryItem('%s%s%s%s%s' % (title, bilgi, "" if len(year) == 0 else " ([COLOR red]%s[/COLOR])" % year, "" if imdb == None else " | [COLOR yellow]IMDB: %s[/COLOR]" % imdb, "" if felirat == 0 else " | [COLOR lime]Feliratos[/COLOR]"), 'episodes&url=%s' % (quote_plus(newurl)), thumb, 'DefaultMovies.png', isFolder=True, meta={'title': title, 'plot': plot, 'duration': time*60}, banner=thumb, context=context)
+                self.addDirectoryItem('%s%s%s%s%s' % (title, bilgi, "" if len(year) == 0 else " ([COLOR red]%s[/COLOR])" % year, "" if imdb == None else " | [COLOR yellow]IMDB: %s[/COLOR]" % imdb, "" if felirat == 0 else " | [COLOR lime]Feliratos[/COLOR]"), 'episodes&url=%s&thumb=%s' % (quote_plus(newurl), quote_plus(thumb)), thumb, 'DefaultMovies.png', isFolder=True, meta={'title': title, 'plot': plot, 'duration': time*60}, banner=thumb, context=context)
             try:
                 navicenter = client.parseDOM(url_content, 'div', attrs={'class': 'navicenter'})[0]
                 last = client.parseDOM(navicenter, 'a')[-1]
@@ -269,13 +272,13 @@ class navigator:
                     pass
                 dataID = client.parseDOM(item, "span", attrs={'original-title': 'Remove'}, ret="data-id")[0]
                 context = [["Eltávolítás a %s" % ("megnézendő listából" if "watchlist" in url else "a FilmPapa kedvencekből"), "adddeletelist&listtype=%s&dataid=%s" % ("later" if "watchlist" in url else "fav", dataID)]]
-                self.addDirectoryItem('%s%s%s' % (title, "" if len(year) == 0 else " ([COLOR red]%s[/COLOR])" % year, "" if imdb == None else " | [COLOR yellow]IMDB: %s[/COLOR]" % imdb), 'episodes&url=%s' % (quote_plus(newurl)), thumb, 'DefaultMovies.png', context=context, isFolder=True, meta={'title': title, 'plot': plot, 'duration': time*60}, banner=thumb)
+                self.addDirectoryItem('%s%s%s' % (title, "" if len(year) == 0 else " ([COLOR red]%s[/COLOR])" % year, "" if imdb == None else " | [COLOR yellow]IMDB: %s[/COLOR]" % imdb), 'episodes&url=%s&thumb=%s' % (quote_plus(newurl), quote_plus(thumb)), thumb, 'DefaultMovies.png', context=context, isFolder=True, meta={'title': title, 'plot': plot, 'duration': time*60}, banner=thumb)
         except:
             pass
         self.endDirectory('movies')
 
 
-    def getEpisodes(self, url):
+    def getEpisodes(self, url, thumb):
         if self.loggedin == "true":
             url_content = self.requestWithLoginCookie(url)
         else:
@@ -300,7 +303,10 @@ class navigator:
             poster = client.parseDOM(info_left, 'span', attrs={'class': 'poster'})[0]
         except:
             poster = client.parseDOM(info_left, 'div', attrs={'class': 'poster'})[0]
-        thumb = client.parseDOM(poster, 'img', ret='src')[0]
+        try:
+            thumb = client.parseDOM(poster, 'img', ret='src')[0]
+        except:
+            pass
         try:
             release = client.parseDOM(info_right, 'div', attrs={'class': 'release'})[0]
             year = client.parseDOM(release, 'a')[0]

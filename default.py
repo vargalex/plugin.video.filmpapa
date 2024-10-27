@@ -46,6 +46,8 @@ dataID = params.get('dataid')
 
 listtype = params.get('listtype')
 
+thumb = params.get('thumb')
+
 if action == None:
     navigator.navigator().getRoot()
 
@@ -62,7 +64,7 @@ elif action == 'items':
     navigator.navigator().getItems(url, page, sort, search)
 
 elif action == 'episodes':
-    navigator.navigator().getEpisodes(url)
+    navigator.navigator().getEpisodes(url, thumb)
 
 elif action == 'playmovie':
     navigator.navigator().playMovie(url, subtitled)
