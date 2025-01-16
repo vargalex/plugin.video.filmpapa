@@ -321,12 +321,16 @@ class navigator:
             videoContainer = client.parseDOM(url_content, 'div', attrs={'class': 'video-container'})[0]
             plot = client.replaceHTMLCodes(client.parseDOM(videoContainer, 'p')[0])
         except:
-            plot = ""
+            try:
+                plot = client.parseDOM(info_right, 'div', attrs={'class': 'excerpt.*?'})[0]
+            except:
+                plot = ""
         try:
             imdb = client.parseDOM(url_content, 'span', attrs={'class': 'imdb-rating'})[0]
             imdb = re.search(r"([^<]*)(<|$)", imdb).group(1).strip()
         except:
             imdb = None
+        """
         match=re.search(r'<a.*href="(.*?/lehetosegek/.*?)"', url_content)
         if match:
             linksURL = match.group(1)
@@ -353,6 +357,14 @@ class navigator:
                         if href not in allLinks:
                             self.addDirectoryItem("%s" % title, 'playmovie&url=%s' % quote_plus(href), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
                             allLinks.append(href)
+        """
+        sources = client.parseDOM(url_content, 'iframe', ret="src")
+        for source in sources:
+            parsedUrl = urlparse.urlparse(url)
+            if "http" not in source:
+                source = "%s:%s" % (parsedUrl.scheme, source)
+            host = urlparse.urlparse(source).netloc
+            self.addDirectoryItem(host, 'playmovie&url=%s' % quote_plus(source), thumb, 'DefaultMovies.png', isFolder=False, meta={'title': title, 'plot': plot, 'duration': int(time)*60}, banner=thumb)
         self.endDirectory('episodes')
 
     def getSearches(self):
@@ -392,6 +404,7 @@ class navigator:
 
     def playMovie(self, url, subtitled):
         xbmc.log('FilmPapa playMovie URL: %s' % url, xbmc.LOGINFO)
+        """
         if self.loggedin == "true":
             url_content = self.requestWithLoginCookie(url)
         else:
@@ -403,6 +416,8 @@ class navigator:
                 src = client.parseDOM(url_content, 'IFRAME', ret='SRC')[0]
             except:
                 src = client.parseDOM(url_content, 'source', ret='src')[0]
+        """
+        src = url
         if "http" not in src:
             src = ("https:%s" % src)
         if 'feltotesek.xyz' in src:
